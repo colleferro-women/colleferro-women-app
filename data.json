@@ -1,18 +1,18 @@
 {
   "social": {
-    "instagram": "INSERISCI_LINK_INSTAGRAM",
-    "facebook": "INSERISCI_LINK_FACEBOOK"
+    "instagram": "https://www.instagram.com/colleferrowomen/",
+    "facebook": "https://www.facebook.com/profile.php?id=61586410554467"
   },
   "info": {
     "contatto_email": "INSERISCI_EMAIL",
     "telefono": "INSERISCI_TELEFONO",
-    "campo_nome": "INSERISCI_NOME_CAMPO",
-    "campo_indirizzo": "INSERISCI_INDIRIZZO"
+    "campo_nome": "Stadio Comunale Andrea Caslini",
+    "campo_indirizzo": "Via Francesco Berni, 14 - Colleferro (Roma)"
   },
   "news": [
     {
-      "titolo": "Benvenuti nella App dei tifosi!",
-      "data": "2026-02-12",
+      "titolo": "Benvenuti nella App ufficiale del Colleferro Women!",
+      "data": "2026-02-14",
       "testo": "Qui troverai news, calendario, classifica e rosa del Colleferro Women."
     }
   ],
