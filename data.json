@@ -1,0 +1,40 @@
+{
+  "social": {
+    "instagram": "INSERISCI_LINK_INSTAGRAM",
+    "facebook": "INSERISCI_LINK_FACEBOOK"
+  },
+  "info": {
+    "contatto_email": "INSERISCI_EMAIL",
+    "telefono": "INSERISCI_TELEFONO",
+    "campo_nome": "INSERISCI_NOME_CAMPO",
+    "campo_indirizzo": "INSERISCI_INDIRIZZO"
+  },
+  "news": [
+    {
+      "titolo": "Benvenuti nella App dei tifosi!",
+      "data": "2026-02-12",
+      "testo": "Qui troverai news, calendario, classifica e rosa del Colleferro Women."
+    }
+  ],
+  "calendario": [
+    {
+      "giornata": 1,
+      "data": "2026-02-15",
+      "ora": "15:00",
+      "casa": "Colleferro Women",
+      "trasferta": "Avversaria",
+      "campo": "Campo Comunale",
+      "risultato": ""
+    }
+  ],
+  "classifica": [
+    { "pos": 1, "squadra": "Squadra A", "pti": 30, "g": 12 },
+    { "pos": 2, "squadra": "Colleferro Women", "pti": 28, "g": 12 },
+    { "pos": 3, "squadra": "Squadra C", "pti": 25, "g": 12 }
+  ],
+  "rosa": [
+    { "nome": "Nome Cognome", "ruolo": "Attaccante", "numero": 9 },
+    { "nome": "Nome Cognome", "ruolo": "Centrocampista", "numero": 8 },
+    { "nome": "Nome Cognome", "ruolo": "Portiere", "numero": 1 }
+  ]
+}
