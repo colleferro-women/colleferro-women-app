@@ -90,7 +90,6 @@ function renderClassifica(){
           <td>${r.s}</td>
           <td>${r.gf}</td>
           <td>${r.gs}</td>
-          <td>${r.dr}</td>
         </tr>
       `;
     }).join("");
@@ -110,7 +109,6 @@ function renderClassifica(){
             <th>S</th>
             <th>GF</th>
             <th>GS</th>
-            <th>DR</th>
           </tr>
         </thead>
         <tbody>${rows}</tbody>
