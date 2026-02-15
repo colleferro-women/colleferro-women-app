@@ -160,3 +160,32 @@ a{color:var(--text)}
   color:#e0e0e0;
   font-weight:600;
 }
+.news-header{
+  position: relative;
+  overflow: hidden;
+}
+
+.news-header::after{
+  content:"";
+  position:absolute;
+  top:-60%;
+  left:-40%;
+  width:60%;
+  height:220%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255,255,255,.18),
+    transparent
+  );
+  transform: rotate(20deg);
+  animation: shine 4.5s ease-in-out infinite;
+  pointer-events:none;
+}
+
+@keyframes shine{
+  0%{ transform: translateX(-120%) rotate(20deg); opacity:0; }
+  15%{ opacity:1; }
+  35%{ transform: translateX(220%) rotate(20deg); opacity:0.9; }
+  100%{ transform: translateX(220%) rotate(20deg); opacity:0; }
+}
