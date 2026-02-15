@@ -4,7 +4,7 @@
     "facebook": "https://www.facebook.com/profile.php?id=61586410554467"
   },
   "info": {
-    "contatto_email": "INSERISCI_EMAIL",
+    "contatto_email": "ssdcolleferrocalcio@libero.it",
     "telefono": "INSERISCI_TELEFONO",
     "campo_nome": "Stadio Comunale Andrea Caslini",
     "campo_indirizzo": "Via Francesco Berni, 14 - Colleferro (Roma)"
@@ -33,7 +33,7 @@
     "ora": "15:30",
     "casa": "Cus Unical",
     "trasferta": "Colleferro Women",
-    "campo": "",
+    "campo": "Centro Sportivo CUS Academy",
     "risultato": "0-1",
     "marcatori": "Cinili S. 45'"
   },
@@ -53,7 +53,7 @@
     "ora": "14:30",
     "casa": "Matera",
     "trasferta": "Colleferro Women",
-    "campo": "",
+    "campo": "Campo Sportivo PAIP",
     "risultato": "0-1",
     "marcatori": "Tittozzi M. 65'"
   },
@@ -73,7 +73,7 @@
     "ora": "14:30",
     "casa": "Virtus Marsala",
     "trasferta": "Colleferro Women",
-    "campo": "",
+    "campo": "Stadio Comunale Nino Angotta",
     "risultato": "1-8",
     "marcatori": "Galluzzi V. 10', 20'; Iafrate A. 15', 42'; Bevilacqua F. 25'; Carcini A. 35'; Daggiante C. 57'; Autogol 70'"
   },
@@ -91,11 +91,11 @@
     "giornata": 8,
     "data": "2025-12-14",
     "ora": "14:30",
-    "casa": "",
-    "trasferta": "",
+    "casa": "Sportiva Rende",
+    "trasferta": "Colleferro Women",
     "campo": "",
-    "risultato": "",
-    "marcatori": "Riposo"
+    "risultato": "Riposo",
+    "marcatori": ""
   },
   {
     "giornata": 9,
@@ -123,7 +123,7 @@
     "ora": "14:30",
     "casa": "Salernitana",
     "trasferta": "Colleferro Women",
-    "campo": "",
+    "campo": "Stadio Giannattasio",
     "risultato": "2-0",
     "marcatori": ""
   },
@@ -133,7 +133,7 @@
     "ora": "14:30",
     "casa": "Catania",
     "trasferta": "Colleferro Women",
-    "campo": "",
+    "campo": "Campo Comunale Di Nesima",
     "risultato": "2-0",
     "marcatori": ""
   },
@@ -173,7 +173,7 @@
     "ora": "14:30",
     "casa": "Pink Sport Time",
     "trasferta": "Colleferro Women",
-    "campo": "",
+    "campo": "Stadio Antonio Antonucci",
     "risultato": "",
     "marcatori": ""
   },
@@ -193,7 +193,7 @@
     "ora": "14:30",
     "casa": "Lecce",
     "trasferta": "Colleferro Women",
-    "campo": "",
+    "campo": "Campo Comunale La Torre",
     "risultato": "",
     "marcatori": ""
   },
@@ -201,11 +201,11 @@
     "giornata": 19,
     "data": "2026-03-22",
     "ora": "15:30",
-    "casa": "",
-    "trasferta": "",
+    "casa": "Colleferro Women",
+    "trasferta": "Sportiva Rende",
     "campo": "",
-    "risultato": "",
-    "marcatori": "Riposo"
+    "risultato": "Riposo",
+    "marcatori": ""
   },
   {
     "giornata": 20,
@@ -213,7 +213,7 @@
     "ora": "15:30",
     "casa": "Villaricca",
     "trasferta": "Colleferro Women",
-    "campo": "",
+    "campo": "Stadio A. Vallefuoco",
     "risultato": "",
     "marcatori": ""
   },
@@ -223,7 +223,7 @@
     "ora": "15:30",
     "casa": "Palermo",
     "trasferta": "Colleferro Women",
-    "campo": "",
+    "campo": "Campo Sportivo Santocanale",
     "risultato": "",
     "marcatori": ""
   },
@@ -254,8 +254,294 @@
 ],
 
   "rosa": [
-    { "nome": "Nome Cognome", "ruolo": "Attaccante", "numero": 9 },
-    { "nome": "Nome Cognome", "ruolo": "Centrocampista", "numero": 8 },
-    { "nome": "Nome Cognome", "ruolo": "Portiere", "numero": 1 }
-  ]
+  {
+    "nome": "Francesca",
+    "cognome": "Guidobaldi",
+    "numero": 1,
+    "data_nascita": "1992-06-07",
+    "ruolo": "Portiere",
+    "foto": "",
+    "presenze": 13,
+    "minuti": 1150,
+    "reti_inviolate": 7,
+    "reti_subite": 11
+  },
+  {
+    "nome": "Gaia",
+    "cognome": "Trinca",
+    "numero": 12,
+    "data_nascita": "2009-04-08",
+    "ruolo": "Portiere",
+    "foto": "",
+    "presenze": 1,
+    "minuti": 20,
+    "reti_inviolate": 0,
+    "reti_subite": 1
+  },
+
+  {
+    "nome": "Syria",
+    "cognome": "Pagiarino",
+    "numero": 2,
+    "data_nascita": "2002-07-04",
+    "ruolo": "Difensore",
+    "foto": "",
+    "presenze": 6,
+    "minuti": 495,
+    "gol": 0
+  },
+  {
+    "nome": "Noemi",
+    "cognome": "De Stradis",
+    "numero": 3,
+    "data_nascita": "2002-02-26",
+    "ruolo": "Difensore",
+    "foto": "",
+    "presenze": 7,
+    "minuti": 195,
+    "gol": 0
+  },
+  {
+    "nome": "Giorgia",
+    "cognome": "Palmigiani",
+    "numero": 15,
+    "data_nascita": "2003-02-15",
+    "ruolo": "Difensore",
+    "foto": "",
+    "presenze": 12,
+    "minuti": 1072,
+    "gol": 0
+  },
+  {
+    "nome": "Eleonora",
+    "cognome": "Prosperi",
+    "numero": 17,
+    "data_nascita": "2007-02-18",
+    "ruolo": "Difensore",
+    "foto": "",
+    "presenze": 3,
+    "minuti": 130,
+    "gol": 0
+  },
+  {
+    "nome": "Alice",
+    "cognome": "Fonck",
+    "numero": 18,
+    "data_nascita": "2006-03-15",
+    "ruolo": "Difensore",
+    "foto": "",
+    "presenze": 5,
+    "minuti": 390,
+    "gol": 0
+  },
+  {
+    "nome": "Eleonora",
+    "cognome": "De Cola",
+    "numero": 19,
+    "data_nascita": "2005-07-19",
+    "ruolo": "Difensore",
+    "foto": "",
+    "presenze": 9,
+    "minuti": 435,
+    "gol": 0
+  },
+
+  {
+    "nome": "Letizia",
+    "cognome": "Musolino",
+    "numero": 4,
+    "data_nascita": "2003-04-11",
+    "ruolo": "Centrocampista",
+    "foto": "",
+    "presenze": 1,
+    "minuti": 55,
+    "gol": 0
+  },
+  {
+    "nome": "Marta",
+    "cognome": "Scagnetti",
+    "numero": 5,
+    "data_nascita": "2006-08-01",
+    "ruolo": "Centrocampista",
+    "foto": "",
+    "presenze": 12,
+    "minuti": 655,
+    "gol": 0
+  },
+  {
+    "nome": "Serena",
+    "cognome": "Cinili",
+    "numero": 6,
+    "data_nascita": "2004-09-21",
+    "ruolo": "Centrocampista",
+    "foto": "",
+    "presenze": 10,
+    "minuti": 785,
+    "gol": 1
+  },
+  {
+    "nome": "Federica",
+    "cognome": "Bevilacqua",
+    "numero": 7,
+    "data_nascita": "1995-12-10",
+    "ruolo": "Centrocampista",
+    "foto": "",
+    "presenze": 11,
+    "minuti": 990,
+    "gol": 1
+  },
+  {
+    "nome": "Arianna",
+    "cognome": "Iafrate",
+    "numero": 8,
+    "data_nascita": "2004-08-14",
+    "ruolo": "Centrocampista",
+    "foto": "",
+    "presenze": 13,
+    "minuti": 1125,
+    "gol": 4
+  },
+  {
+    "nome": "Christina",
+    "cognome": "Daggiante",
+    "numero": 13,
+    "data_nascita": "2003-04-18",
+    "ruolo": "Centrocampista",
+    "foto": "",
+    "presenze": 8,
+    "minuti": 195,
+    "gol": 1
+  },
+  {
+    "nome": "Martina",
+    "cognome": "Tittozzi",
+    "numero": 16,
+    "data_nascita": "2004-08-24",
+    "ruolo": "Centrocampista",
+    "foto": "",
+    "presenze": 13,
+    "minuti": 1070,
+    "gol": 3
+  },
+
+  {
+    "nome": "Alessandra",
+    "cognome": "Martella",
+    "numero": 9,
+    "data_nascita": "2005-11-08",
+    "ruolo": "Attaccante",
+    "foto": "",
+    "presenze": 10,
+    "minuti": 605,
+    "gol": 0
+  },
+  {
+    "nome": "Virginia",
+    "cognome": "Galluzzi",
+    "numero": 10,
+    "data_nascita": "1996-11-10",
+    "ruolo": "Attaccante",
+    "foto": "",
+    "presenze": 13,
+    "minuti": 1002,
+    "gol": 4
+  },
+  {
+    "nome": "Anna",
+    "cognome": "Carcini",
+    "numero": 11,
+    "data_nascita": "2003-09-23",
+    "ruolo": "Attaccante",
+    "foto": "",
+    "presenze": 13,
+    "minuti": 1115,
+    "gol": 1
+  },
+  {
+    "nome": "Sveva",
+    "cognome": "Rutigliano",
+    "numero": 14,
+    "data_nascita": "2003-05-22",
+    "ruolo": "Attaccante",
+    "foto": "",
+    "presenze": 10,
+    "minuti": 545,
+    "gol": 0
+  },
+  {
+    "nome": "Francesca",
+    "cognome": "De Girolamo",
+    "numero": 20,
+    "data_nascita": "2010-07-26",
+    "ruolo": "Attaccante",
+    "foto": "",
+    "presenze": 4,
+    "minuti": 55,
+    "gol": 0
+  }
+],
+
+"calciatrici_cedute": [
+  {
+    "nome": "Ava",
+    "cognome": "Hernandez-Watzek",
+    "data_nascita": "2006-06-12",
+    "ruolo": "Portiere",
+    "foto": "",
+    "presenze": 0,
+    "minuti": 0,
+    "reti_inviolate": 0,
+    "reti_subite": 0
+  },
+  {
+    "nome": "Chloe",
+    "cognome": "Ouimet",
+    "data_nascita": "2005-04-10",
+    "ruolo": "Difensore",
+    "foto": "",
+    "presenze": 4,
+    "minuti": 275,
+    "gol": 0
+  },
+  {
+    "nome": "Giulia",
+    "cognome": "Campanelli",
+    "data_nascita": "1996-01-17",
+    "ruolo": "Difensore",
+    "foto": "",
+    "presenze": 4,
+    "minuti": 335,
+    "gol": 0
+  },
+  {
+    "nome": "Adriana",
+    "cognome": "Calabria",
+    "data_nascita": "2001-10-02",
+    "ruolo": "Attaccante",
+    "foto": "",
+    "presenze": 1,
+    "minuti": 5,
+    "gol": 0
+  },
+  {
+    "nome": "Hailee",
+    "cognome": "Sanchez Boo",
+    "data_nascita": "2004-02-13",
+    "ruolo": "Attaccante",
+    "foto": "",
+    "presenze": 2,
+    "minuti": 20,
+    "gol": 0
+  },
+  {
+    "nome": "Melissa",
+    "cognome": "Adiutori",
+    "data_nascita": "2002-11-14",
+    "ruolo": "Attaccante",
+    "foto": "",
+    "presenze": 1,
+    "minuti": 10,
+    "gol": 0
+  }
+]
 }
