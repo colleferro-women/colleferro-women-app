@@ -20,6 +20,31 @@ function fmtDate(iso){
   return d.toLocaleDateString("it-IT", { weekday:"short", day:"2-digit", month:"2-digit", year:"numeric" });
 }
 
+function toDateTimeISO(dateStr, timeStr){
+  if(!dateStr) return null;
+  const t = (timeStr && timeStr.trim()) ? timeStr.trim() : "00:00";
+  return new Date(`${dateStr}T${t}:00`);
+}
+
+function getNextMatch(items){
+  const now = new Date();
+  const upcoming = (items || [])
+    .filter(m => m.data && (!m.risultato || !String(m.risultato).trim()) && m.marcatori !== "Riposo")
+    .map(m => ({...m, _dt: toDateTimeISO(m.data, m.ora)}))
+    .filter(m => m._dt && m._dt >= now)
+    .sort((a,b)=> a._dt - b._dt);
+  return upcoming[0] || null;
+}
+
+function getLastPlayed(items){
+  const played = (items || [])
+    .filter(m => m.data && m.risultato && String(m.risultato).trim())
+    .map(m => ({...m, _dt: toDateTimeISO(m.data, m.ora)}))
+    .filter(m => m._dt)
+    .sort((a,b)=> b._dt - a._dt);
+  return played[0] || null;
+}
+
 function renderNews(){
   const news = appData.news || [];
   const cal = appData.calendario || [];
@@ -30,6 +55,14 @@ function renderNews(){
   const interviste = news
     .filter(n => (n.categoria || "").toLowerCase() === "intervista")
     .slice().sort((a,b)=> (b.data||"").localeCompare(a.data||""));
+
+  const header = `
+    <div class="news-header">
+      <h2>Colleferro Women</h2>
+      <div class="slogan">Passione Rossonera</div>
+      <div class="subtitle">Stagione 2025/2026 • Settore Femminile</div>
+    </div>
+  `;
 
   const blockNext = `
     <div class="card">
@@ -68,17 +101,9 @@ function renderNews(){
       `).join("") : `<div class="meta" style="margin-top:6px">Nessuna intervista pubblicata</div>`}
     </div>
   `;
-const header = `
-  <div class="news-header">
-    <h2>Colleferro Women</h2>
-    <div class="slogan">Passione Rossonera</div>
-    <div class="subtitle">Stagione 2025/2026 • Settore Femminile</div>
-  </div>
-`;
 
   views.news.innerHTML = header + blockNext + blockLast + blockInterviste;
 }
-
 
 function renderCalendario(){
 
@@ -91,7 +116,6 @@ function renderCalendario(){
     entries.forEach(e => {
       const trimmed = e.trim();
       if(!trimmed) return;
-
       if (trimmed.toLowerCase().includes("autogol")) return;
 
       const parts = trimmed.split(" ");
@@ -146,7 +170,6 @@ function renderCalendario(){
     `).join("");
 }
 
-
 function renderClassifica(){
   const items = appData.classifica || [];
 
@@ -157,7 +180,7 @@ function renderClassifica(){
 
   const rows = items
     .slice().sort((a,b)=> (a.pos ?? 999) - (b.pos ?? 999))
-    .map((r, index, array) => {
+    .map((r, _, array) => {
 
       const isColleferro = (r.squadra || "").toLowerCase().includes("colleferro women");
       const isPlayoff = r.pos === 1 || r.pos === 2;
@@ -209,45 +232,7 @@ function renderClassifica(){
   `;
 }
 
-
 function renderRosa(){
-function openPlayerModal(numero){
-  const player = (appData.rosa || []).find(p => p.numero === numero);
-  if(!player) return;
-
-  const stats = player.ruolo === "Portiere" ? `
-      <div class="stat-box"><div>Reti inviolate</div><strong>${player.reti_inviolate ?? 0}</strong></div>
-      <div class="stat-box"><div>Reti subite</div><strong>${player.reti_subite ?? 0}</strong></div>
-  ` : `
-      <div class="stat-box"><div>Goal fatti</div><strong>${player.gol ?? 0}</strong></div>
-  `;
-
-  document.getElementById("playerModalContent").innerHTML = `
-    <div class="modal-header">
-      <img src="${player.foto && player.foto.trim() ? player.foto : 'https://via.placeholder.com/400x500/111111/ffffff?text=Colleferro'}">
-    </div>
-    <div class="modal-body">
-      <h2>#${player.numero} ${player.nome} ${player.cognome}</h2>
-      <div class="modal-meta">${player.ruolo}</div>
-      <div class="modal-meta">Data di nascita: ${player.data_nascita ?? "-"}</div>
-
-      <div class="stats-grid">
-        <div class="stat-box"><div>Presenze</div><strong>${player.presenze ?? 0}</strong></div>
-        <div class="stat-box"><div>Minuti</div><strong>${player.minuti ?? 0}</strong></div>
-        ${stats}
-      </div>
-    </div>
-  `;
-
-  document.getElementById("playerModal").style.display = "flex";
-}
-
-function closePlayerModal(e){
-  if(e.target.id === "playerModal"){
-    document.getElementById("playerModal").style.display = "none";
-  }
-}
-
   const items = appData.rosa || [];
 
   if(!items.length){
@@ -258,7 +243,7 @@ function closePlayerModal(e){
   const sorted = items.slice().sort((a,b)=> (a.numero ?? 999) - (b.numero ?? 999));
 
   const cards = sorted.map(p => `
-    <div class="player-card" onclick="openPlayerModal(${p.numero})">
+    <div class="player-card" onclick="openPlayerModal(${Number(p.numero)})">
       <div class="player-img">
         <img src="${p.foto && p.foto.trim() ? p.foto : 'https://via.placeholder.com/300x400/111111/ffffff?text=Colleferro'}" alt="${p.nome} ${p.cognome}">
       </div>
@@ -281,6 +266,44 @@ function closePlayerModal(e){
   `;
 }
 
+function openPlayerModal(numero){
+  numero = Number(numero);
+  const player = (appData.rosa || []).find(p => Number(p.numero) === numero);
+  if(!player) return;
+
+  const stats = (player.ruolo || "").toLowerCase() === "portiere" ? `
+      <div class="stat-box"><div>Reti inviolate</div><strong>${player.reti_inviolate ?? 0}</strong></div>
+      <div class="stat-box"><div>Reti subite</div><strong>${player.reti_subite ?? 0}</strong></div>
+  ` : `
+      <div class="stat-box"><div>Goal fatti</div><strong>${player.gol ?? 0}</strong></div>
+  `;
+
+  document.getElementById("playerModalContent").innerHTML = `
+    <div class="modal-header">
+      <img src="${player.foto && player.foto.trim() ? player.foto : 'https://via.placeholder.com/400x500/111111/ffffff?text=Colleferro'}">
+    </div>
+    <div class="modal-body">
+      <h2>#${player.numero} ${player.nome} ${player.cognome}</h2>
+      <div class="modal-meta">${player.ruolo || ""}</div>
+      <div class="modal-meta">Data di nascita: ${player.data_nascita ?? "-"}</div>
+
+      <div class="player-stats-grid">
+        <div class="stat-box"><div>Presenze</div><strong>${player.presenze ?? 0}</strong></div>
+        <div class="stat-box"><div>Minuti</div><strong>${player.minuti ?? 0}</strong></div>
+        ${stats}
+      </div>
+    </div>
+  `;
+
+  document.getElementById("playerModal").style.display = "flex";
+}
+
+function closePlayerModal(e){
+  if(e.target.id === "playerModal"){
+    document.getElementById("playerModal").style.display = "none";
+  }
+}
+
 function renderInfo(){
   const s = appData.social || {};
   const i = appData.info || {};
@@ -299,12 +322,10 @@ function renderInfo(){
 }
 
 async function init(){
-  // tabs
   document.querySelectorAll(".tab").forEach(btn=>{
     btn.addEventListener("click", ()=> setActive(btn.dataset.view));
   });
 
-  // load data
   const res = await fetch("data.json", { cache: "no-store" });
   appData = await res.json();
 
@@ -314,12 +335,10 @@ async function init(){
   renderRosa();
   renderInfo();
 
-  // service worker
   if ("serviceWorker" in navigator) {
     try { await navigator.serviceWorker.register("sw.js"); } catch(e){}
   }
 
-  // install button
   let deferredPrompt = null;
   const installBtn = document.getElementById("installBtn");
 
@@ -338,4 +357,8 @@ async function init(){
   });
 }
 
+window.openPlayerModal = openPlayerModal;
+window.closePlayerModal = closePlayerModal;
+
 init();
+
