@@ -5,7 +5,7 @@
   },
   "info": {
     "contatto_email": "ssdcolleferrocalcio@libero.it",
-    "telefono": "INSERISCI_TELEFONO",
+    "telefono": "+39 339 7209183",
     "campo_nome": "Stadio Comunale Andrea Caslini",
     "campo_indirizzo": "Via Francesco Berni, 14 - Colleferro (Roma)"
   },
@@ -94,8 +94,8 @@
     "casa": "Sportiva Rende",
     "trasferta": "Colleferro Women",
     "campo": "",
-    "risultato": "Riposo",
-    "marcatori": ""
+    "risultato": "",
+    "marcatori": "Riposo"
   },
   {
     "giornata": 9,
@@ -204,8 +204,8 @@
     "casa": "Colleferro Women",
     "trasferta": "Sportiva Rende",
     "campo": "",
-    "risultato": "Riposo",
-    "marcatori": ""
+    "risultato": "",
+    "marcatori": "Riposo"
   },
   {
     "giornata": 20,
