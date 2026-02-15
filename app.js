@@ -234,13 +234,14 @@ function renderClassifica(){
 
 function renderRosa(){
   const items = appData.rosa || [];
+  const ex = appData.calciatrici_cedute || [];
 
   if(!items.length){
     views.rosa.innerHTML = `<div class="card"><h3>Rosa non disponibile</h3></div>`;
     return;
   }
 
-  const sorted = items.slice().sort((a,b)=> (a.numero ?? 999) - (b.numero ?? 999));
+  const sorted = items.slice();
 
   const cards = sorted.map(p => `
     <div class="player-card" onclick="openPlayerModal(${Number(p.numero)})">
@@ -255,15 +256,59 @@ function renderRosa(){
     </div>
   `).join("");
 
+  const exCards = ex.map(p => `
+    <div class="player-card player-ex-card" onclick="openPlayerModalEx('${(p.nome || "").replace(/'/g,"&#39;")}','${(p.cognome || "").replace(/'/g,"&#39;")}')">
+      <div class="player-img">
+        <img src="${p.foto && p.foto.trim() ? p.foto : 'https://via.placeholder.com/300x400/111111/ffffff?text=Colleferro'}" alt="${p.nome} ${p.cognome}">
+      </div>
+      <div class="player-info">
+        <div class="player-number">EX</div>
+        <div class="player-name">${p.nome} ${p.cognome}</div>
+        <div class="player-role">${p.ruolo ?? ""}</div>
+      </div>
+    </div>
+  `).join("");
+
   views.rosa.innerHTML = `
+    <div class="card">
+      <h3>Rosa</h3>
+      <div class="toggle-row">
+        <div class="meta">Mostra ex (Calciatrici cedute)</div>
+        <label class="switch">
+          <input id="toggleEx" type="checkbox" ${ex.length ? "" : "disabled"}>
+          <span class="slider"></span>
+        </label>
+      </div>
+      ${!ex.length ? `<div class="meta" style="margin-top:8px">Nessuna calciatrice ceduta inserita</div>` : ``}
+    </div>
+
     <div class="grid-rosa">
       ${cards}
+    </div>
+
+    <div id="exSection" style="display:none">
+      <div class="card">
+        <h3>Calciatrici cedute</h3>
+      </div>
+      <div class="grid-rosa">
+        ${exCards}
+      </div>
     </div>
 
     <div id="playerModal" class="player-modal" onclick="closePlayerModal(event)">
       <div class="player-modal-content" id="playerModalContent"></div>
     </div>
   `;
+
+  const toggle = document.getElementById("toggleEx");
+  if(toggle){
+    toggle.addEventListener("change", () => {
+      const section = document.getElementById("exSection");
+      if(section) section.style.display = toggle.checked ? "block" : "none";
+    });
+  }
+}
+
 }
 
 function openPlayerModal(numero){
@@ -299,6 +344,39 @@ function openPlayerModal(numero){
 }
 
 function closePlayerModal(e){
+function openPlayerModalEx(nome, cognome){
+  const player = (appData.calciatrici_cedute || []).find(p => (p.nome || "") === nome && (p.cognome || "") === cognome);
+  if(!player) return;
+
+  const stats = (player.ruolo || "").toLowerCase() === "portiere" ? `
+      <div class="stat-box"><div>Reti inviolate</div><strong>${player.reti_inviolate ?? 0}</strong></div>
+      <div class="stat-box"><div>Reti subite</div><strong>${player.reti_subite ?? 0}</strong></div>
+  ` : `
+      <div class="stat-box"><div>Goal fatti</div><strong>${player.gol ?? 0}</strong></div>
+  `;
+
+  document.getElementById("playerModalContent").innerHTML = `
+    <div class="modal-header">
+      <img src="${player.foto && player.foto.trim() ? player.foto : 'https://via.placeholder.com/400x500/111111/ffffff?text=Colleferro'}">
+    </div>
+    <div class="modal-body">
+      <h2>EX • ${player.nome} ${player.cognome}</h2>
+      <div class="modal-meta">${player.ruolo || ""}</div>
+      <div class="modal-meta">Data di nascita: ${player.data_nascita ?? "-"}</div>
+
+      <div class="player-stats-grid">
+        <div class="stat-box"><div>Presenze</div><strong>${player.presenze ?? 0}</strong></div>
+        <div class="stat-box"><div>Minuti</div><strong>${player.minuti ?? 0}</strong></div>
+        ${stats}
+      </div>
+    </div>
+  `;
+
+  document.getElementById("playerModal").style.display = "flex";
+}
+
+window.openPlayerModalEx = openPlayerModalEx;
+
   if(e.target.id === "playerModal"){
     document.getElementById("playerModal").style.display = "none";
   }
