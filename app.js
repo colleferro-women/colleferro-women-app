@@ -21,22 +21,57 @@ function fmtDate(iso){
 }
 
 function renderNews(){
-  const items = appData.news || [];
-  if(!items.length){
-    views.news.innerHTML = `<div class="card"><h3>Nessuna news</h3><div class="meta">Aggiungi news in data.json</div></div>`;
-    return;
-  }
-  views.news.innerHTML = items
-    .slice().sort((a,b)=> (b.data||"").localeCompare(a.data||""))
-    .map(n => `
-      <article class="card">
-        <div class="badge">${fmtDate(n.data)}</div>
-        <h3>${n.titolo || ""}</h3>
-        <div class="meta">${n.sottotitolo || ""}</div>
-        <p>${n.testo || ""}</p>
-      </article>
-    `).join("");
+  const news = appData.news || [];
+  const cal = appData.calendario || [];
+
+  const next = getNextMatch(cal);
+  const last = getLastPlayed(cal);
+
+  const interviste = news
+    .filter(n => (n.categoria || "").toLowerCase() === "intervista")
+    .slice().sort((a,b)=> (b.data||"").localeCompare(a.data||""));
+
+  const blockNext = `
+    <div class="card">
+      <h3>Prossima partita</h3>
+      ${next ? `
+        <div style="font-weight:900; margin-top:6px">${next.casa} <span class="meta">vs</span> ${next.trasferta}</div>
+        <div class="meta">${fmtDate(next.data)} • ${next.ora || ""} • ${next.campo || ""}</div>
+      ` : `
+        <div class="meta" style="margin-top:6px">Da definire</div>
+      `}
+    </div>
+  `;
+
+  const blockLast = `
+    <div class="card">
+      <h3>Ultimo risultato</h3>
+      ${last ? `
+        <div style="font-weight:900; margin-top:6px">${last.casa} <span class="meta">vs</span> ${last.trasferta}</div>
+        <div class="meta">${fmtDate(last.data)} • <span class="badge">Risultato: ${last.risultato}</span></div>
+      ` : `
+        <div class="meta" style="margin-top:6px">Nessun risultato disponibile</div>
+      `}
+    </div>
+  `;
+
+  const blockInterviste = `
+    <div class="card">
+      <h3>Interviste</h3>
+      ${interviste.length ? interviste.map(n => `
+        <article style="margin-top:12px; padding-top:12px; border-top:1px solid var(--line);">
+          <div class="badge">${fmtDate(n.data)}</div>
+          <div style="font-weight:900; margin-top:6px">${n.titolo || ""}</div>
+          ${n.testo ? `<div class="meta" style="margin-top:6px">${n.testo}</div>` : ``}
+          ${n.link ? `<div style="margin-top:8px"><a href="${n.link}" target="_blank" rel="noopener">Apri</a></div>` : ``}
+        </article>
+      `).join("") : `<div class="meta" style="margin-top:6px">Nessuna intervista pubblicata</div>`}
+    </div>
+  `;
+
+  views.news.innerHTML = blockNext + blockLast + blockInterviste;
 }
+
 
 function renderCalendario(){
 
