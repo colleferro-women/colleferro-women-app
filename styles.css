@@ -122,3 +122,10 @@ body{
   cursor:pointer;
 }
 a{color:var(--text)}
+.row-playoff {
+  background: rgba(0, 90, 255, 0.15);
+}
+
+.row-retrocessione {
+  background: rgba(255, 0, 0, 0.18);
+}
