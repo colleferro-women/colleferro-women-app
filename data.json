@@ -17,21 +17,242 @@
     }
   ],
   "calendario": [
-    {
-      "giornata": 1,
-      "data": "2026-02-15",
-      "ora": "15:00",
-      "casa": "Colleferro Women",
-      "trasferta": "Avversaria",
-      "campo": "Campo Comunale",
-      "risultato": ""
-    }
-  ],
+  {
+    "giornata": 1,
+    "data": "2025-10-12",
+    "ora": "15:30",
+    "casa": "Colleferro Women",
+    "trasferta": "Catania",
+    "campo": "Stadio Comunale Andrea Caslini",
+    "risultato": "0-2",
+    "marcatori": ""
+  },
+  {
+    "giornata": 2,
+    "data": "2025-10-19",
+    "ora": "15:30",
+    "casa": "Cus Unical",
+    "trasferta": "Colleferro Women",
+    "campo": "",
+    "risultato": "0-1",
+    "marcatori": "Cinili S. 45'"
+  },
+  {
+    "giornata": 3,
+    "data": "2025-10-26",
+    "ora": "14:30",
+    "casa": "Colleferro Women",
+    "trasferta": "Academy Abatese",
+    "campo": "Stadio Comunale Andrea Caslini",
+    "risultato": "2-1",
+    "marcatori": "Iafrate A. 16', 91'"
+  },
+  {
+    "giornata": 4,
+    "data": "2025-11-09",
+    "ora": "14:30",
+    "casa": "Matera",
+    "trasferta": "Colleferro Women",
+    "campo": "",
+    "risultato": "0-1",
+    "marcatori": "Tittozzi M. 65'"
+  },
+  {
+    "giornata": 5,
+    "data": "2025-11-16",
+    "ora": "14:30",
+    "casa": "Colleferro Women",
+    "trasferta": "Pink Sport Time",
+    "campo": "Stadio Comunale Andrea Caslini",
+    "risultato": "1-1",
+    "marcatori": "Tittozzi M. 10'"
+  },
+  {
+    "giornata": 6,
+    "data": "2025-11-23",
+    "ora": "14:30",
+    "casa": "Virtus Marsala",
+    "trasferta": "Colleferro Women",
+    "campo": "",
+    "risultato": "1-8",
+    "marcatori": "Galluzzi V. 10', 20'; Iafrate A. 15', 42'; Bevilacqua F. 25'; Carcini A. 35'; Daggiante C. 57'; Autogol 70'"
+  },
+  {
+    "giornata": 7,
+    "data": "2025-11-30",
+    "ora": "14:30",
+    "casa": "Colleferro Women",
+    "trasferta": "Lecce",
+    "campo": "Stadio Comunale Andrea Caslini",
+    "risultato": "0-0",
+    "marcatori": ""
+  },
+  {
+    "giornata": 8,
+    "data": "2025-12-14",
+    "ora": "14:30",
+    "casa": "",
+    "trasferta": "",
+    "campo": "",
+    "risultato": "",
+    "marcatori": "Riposo"
+  },
+  {
+    "giornata": 9,
+    "data": "2025-12-21",
+    "ora": "14:30",
+    "casa": "Colleferro Women",
+    "trasferta": "Villaricca",
+    "campo": "Stadio Comunale Andrea Caslini",
+    "risultato": "1-0",
+    "marcatori": "Galluzzi V. 65'"
+  },
+  {
+    "giornata": 10,
+    "data": "2026-01-11",
+    "ora": "14:30",
+    "casa": "Colleferro Women",
+    "trasferta": "Palermo",
+    "campo": "Stadio Comunale Andrea Caslini",
+    "risultato": "0-0",
+    "marcatori": ""
+  },
+  {
+    "giornata": 11,
+    "data": "2026-01-18",
+    "ora": "14:30",
+    "casa": "Salernitana",
+    "trasferta": "Colleferro Women",
+    "campo": "",
+    "risultato": "2-0",
+    "marcatori": ""
+  },
+  {
+    "giornata": 12,
+    "data": "2026-01-25",
+    "ora": "14:30",
+    "casa": "Catania",
+    "trasferta": "Colleferro Women",
+    "campo": "",
+    "risultato": "2-0",
+    "marcatori": ""
+  },
+  {
+    "giornata": 13,
+    "data": "2026-02-01",
+    "ora": "14:30",
+    "casa": "Colleferro Women",
+    "trasferta": "Cus Unical",
+    "campo": "Stadio Comunale Andrea Caslini",
+    "risultato": "1-0",
+    "marcatori": "Galluzzi V. 70'"
+  },
+  {
+    "giornata": 14,
+    "data": "2026-02-08",
+    "ora": "14:30",
+    "casa": "Academy Abatese",
+    "trasferta": "Colleferro Women",
+    "campo": "",
+    "risultato": "3-1",
+    "marcatori": "Tittozzi M. 43'"
+  },
+  {
+    "giornata": 15,
+    "data": "2026-02-22",
+    "ora": "14:30",
+    "casa": "Colleferro Women",
+    "trasferta": "Matera",
+    "campo": "Stadio Comunale Andrea Caslini",
+    "risultato": "",
+    "marcatori": ""
+  },
+  {
+    "giornata": 16,
+    "data": "2026-03-01",
+    "ora": "14:30",
+    "casa": "Pink Sport Time",
+    "trasferta": "Colleferro Women",
+    "campo": "",
+    "risultato": "",
+    "marcatori": ""
+  },
+  {
+    "giornata": 17,
+    "data": "2026-03-08",
+    "ora": "14:30",
+    "casa": "Colleferro Women",
+    "trasferta": "Virtus Marsala",
+    "campo": "Stadio Comunale Andrea Caslini",
+    "risultato": "",
+    "marcatori": ""
+  },
+  {
+    "giornata": 18,
+    "data": "2026-03-15",
+    "ora": "14:30",
+    "casa": "Lecce",
+    "trasferta": "Colleferro Women",
+    "campo": "",
+    "risultato": "",
+    "marcatori": ""
+  },
+  {
+    "giornata": 19,
+    "data": "2026-03-22",
+    "ora": "15:30",
+    "casa": "",
+    "trasferta": "",
+    "campo": "",
+    "risultato": "",
+    "marcatori": "Riposo"
+  },
+  {
+    "giornata": 20,
+    "data": "2026-04-12",
+    "ora": "15:30",
+    "casa": "Villaricca",
+    "trasferta": "Colleferro Women",
+    "campo": "",
+    "risultato": "",
+    "marcatori": ""
+  },
+  {
+    "giornata": 21,
+    "data": "2026-04-19",
+    "ora": "15:30",
+    "casa": "Palermo",
+    "trasferta": "Colleferro Women",
+    "campo": "",
+    "risultato": "",
+    "marcatori": ""
+  },
+  {
+    "giornata": 22,
+    "data": "2026-04-26",
+    "ora": "15:30",
+    "casa": "Colleferro Women",
+    "trasferta": "Salernitana",
+    "campo": "Stadio Comunale Andrea Caslini",
+    "risultato": "",
+    "marcatori": ""
+  }
+],
+
   "classifica": [
-    { "pos": 1, "squadra": "Squadra A", "pti": 30, "g": 12 },
-    { "pos": 2, "squadra": "Colleferro Women", "pti": 28, "g": 12 },
-    { "pos": 3, "squadra": "Squadra C", "pti": 25, "g": 12 }
-  ],
+  { "pos": 1, "squadra": "Catania", "pti": 33, "g": 13, "v": 11, "n": 0, "s": 2, "gf": 40, "gs": 9, "dr": 31 },
+  { "pos": 2, "squadra": "Academy Abatese", "pti": 29, "g": 12, "v": 9, "n": 2, "s": 1, "gf": 29, "gs": 9, "dr": 20 },
+  { "pos": 3, "squadra": "Salernitana", "pti": 27, "g": 12, "v": 8, "n": 3, "s": 1, "gf": 30, "gs": 8, "dr": 22 },
+  { "pos": 4, "squadra": "Palermo", "pti": 24, "g": 13, "v": 7, "n": 3, "s": 3, "gf": 37, "gs": 14, "dr": 23 },
+  { "pos": 5, "squadra": "Colleferro Women", "pti": 21, "g": 13, "v": 6, "n": 3, "s": 4, "gf": 16, "gs": 12, "dr": 4 },
+  { "pos": 6, "squadra": "Villaricca", "pti": 18, "g": 13, "v": 5, "n": 3, "s": 5, "gf": 18, "gs": 16, "dr": 2 },
+  { "pos": 7, "squadra": "Pink Sport Time", "pti": 15, "g": 13, "v": 4, "n": 3, "s": 6, "gf": 14, "gs": 17, "dr": -3 },
+  { "pos": 8, "squadra": "Lecce", "pti": 14, "g": 13, "v": 3, "n": 5, "s": 5, "gf": 18, "gs": 18, "dr": 0 },
+  { "pos": 9, "squadra": "Matera", "pti": 12, "g": 13, "v": 3, "n": 3, "s": 7, "gf": 18, "gs": 29, "dr": -11 },
+  { "pos": 10, "squadra": "Cus Unical", "pti": 2, "g": 13, "v": 0, "n": 2, "s": 11, "gf": 8, "gs": 52, "dr": -44 },
+  { "pos": 11, "squadra": "Virtus Marsala", "pti": 1, "g": 12, "v": 0, "n": 1, "s": 11, "gf": 6, "gs": 50, "dr": -44 }
+],
+
   "rosa": [
     { "nome": "Nome Cognome", "ruolo": "Attaccante", "numero": 9 },
     { "nome": "Nome Cognome", "ruolo": "Centrocampista", "numero": 8 },
