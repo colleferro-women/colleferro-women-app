@@ -68,8 +68,15 @@ function renderNews(){
       `).join("") : `<div class="meta" style="margin-top:6px">Nessuna intervista pubblicata</div>`}
     </div>
   `;
+const header = `
+  <div class="news-header">
+    <h2>Colleferro Women</h2>
+    <div class="slogan">Passione Rossonera</div>
+    <div class="subtitle">Stagione 2025/2026 • Settore Femminile</div>
+  </div>
+`;
 
-  views.news.innerHTML = blockNext + blockLast + blockInterviste;
+  views.news.innerHTML = header + blockNext + blockLast + blockInterviste;
 }
 
 
