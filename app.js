@@ -60,20 +60,37 @@ function renderCalendario(){
 
 function renderClassifica(){
   const items = appData.classifica || [];
+
   if(!items.length){
-    views.classifica.innerHTML = `<div class="card"><h3>Classifica non disponibile</h3><div class="meta">Compilala in data.json</div></div>`;
+    views.classifica.innerHTML = `<div class="card"><h3>Classifica non disponibile</h3></div>`;
     return;
   }
+
   const rows = items
     .slice().sort((a,b)=> (a.pos ?? 999) - (b.pos ?? 999))
-    .map(r => {
-      const strong = (r.squadra || "").toLowerCase().includes("colleferro women");
+    .map((r, index, array) => {
+
+      const isColleferro = (r.squadra || "").toLowerCase().includes("colleferro women");
+      const isPlayoff = r.pos === 1 || r.pos === 2;
+      const isRetro = r.pos === array.length;
+
+      let rowClass = "";
+      if (isPlayoff) rowClass = "row-playoff";
+      if (isRetro) rowClass = "row-retrocessione";
+      if (isColleferro) rowClass += " row-strong";
+
       return `
-        <tr class="${strong ? "row-strong" : ""}">
-          <td>${r.pos ?? ""}</td>
-          <td>${r.squadra ?? ""}</td>
-          <td>${r.g ?? ""}</td>
-          <td>${r.pti ?? ""}</td>
+        <tr class="${rowClass}">
+          <td>${r.pos}</td>
+          <td>${r.squadra}</td>
+          <td>${r.pti}</td>
+          <td>${r.g}</td>
+          <td>${r.v}</td>
+          <td>${r.n}</td>
+          <td>${r.s}</td>
+          <td>${r.gf}</td>
+          <td>${r.gs}</td>
+          <td>${r.dr}</td>
         </tr>
       `;
     }).join("");
@@ -83,13 +100,28 @@ function renderClassifica(){
       <h3>Classifica</h3>
       <table class="table">
         <thead>
-          <tr><th>Pos</th><th>Squadra</th><th>G</th><th>Pti</th></tr>
+          <tr>
+            <th>Pos</th>
+            <th>Squadra</th>
+            <th>PT</th>
+            <th>G</th>
+            <th>V</th>
+            <th>N</th>
+            <th>S</th>
+            <th>GF</th>
+            <th>GS</th>
+            <th>DR</th>
+          </tr>
         </thead>
         <tbody>${rows}</tbody>
       </table>
+      <div style="margin-top:10px;font-size:12px;color:#b9b9b9;">
+        🟦 Playoff &nbsp;&nbsp; 🟥 Retrocessione
+      </div>
     </div>
   `;
 }
+
 
 function renderRosa(){
   const items = appData.rosa || [];
