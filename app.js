@@ -39,11 +39,42 @@ function renderNews(){
 }
 
 function renderCalendario(){
+
+  function formatMarcatori(text){
+    if(!text || text === "Riposo") return text;
+
+    const goals = {};
+    const entries = text.split(";");
+
+    entries.forEach(e => {
+      const trimmed = e.trim();
+      if(!trimmed) return;
+
+      if (trimmed.toLowerCase().includes("autogol")) return;
+
+      const parts = trimmed.split(" ");
+      const namePart = (parts[0] || "") + " " + (parts[1] || "");
+      const cleanName = namePart.trim();
+
+      const goalsCount = trimmed.includes(",") ? trimmed.split(",").length : 1;
+
+      if(cleanName){
+        goals[cleanName] = (goals[cleanName] || 0) + goalsCount;
+      }
+    });
+
+    return Object.keys(goals).map(name => {
+      return `${name} ${"⚽".repeat(goals[name])}`;
+    }).join(" • ");
+  }
+
   const items = appData.calendario || [];
+
   if(!items.length){
     views.calendario.innerHTML = `<div class="card"><h3>Nessuna partita</h3><div class="meta">Aggiungi partite in data.json</div></div>`;
     return;
   }
+
   views.calendario.innerHTML = items
     .slice().sort((a,b)=> (a.data||"").localeCompare(b.data||""))
     .map(m => `
@@ -51,12 +82,28 @@ function renderCalendario(){
         <div class="meta">Giornata ${m.giornata ?? "-"}</div>
         <h3>${m.casa} <span class="meta">vs</span> ${m.trasferta}</h3>
         <div class="meta">${fmtDate(m.data)} • ${m.ora || ""} • ${m.campo || ""}</div>
+
         <div style="margin-top:10px">
-          <span class="badge">${m.risultato ? "Risultato: " + m.risultato : "Da giocare"}</span>
+          <span class="badge">
+            ${m.risultato ? "Risultato: " + m.risultato : "Da giocare"}
+          </span>
         </div>
+
+        ${m.marcatori && m.marcatori !== "Riposo" ? `
+          <div style="margin-top:8px; font-size:13px; color:#b9b9b9;">
+            <strong>Marcatori:</strong> ${formatMarcatori(m.marcatori)}
+          </div>
+        ` : ""}
+
+        ${m.marcatori === "Riposo" ? `
+          <div style="margin-top:8px; font-size:13px; color:#b9b9b9;">
+            <strong>Riposo</strong>
+          </div>
+        ` : ""}
       </div>
     `).join("");
 }
+
 
 function renderClassifica(){
   const items = appData.classifica || [];
