@@ -241,9 +241,7 @@ function renderRosa(){
     return;
   }
 
-  const sorted = items.slice();
-
-  const cards = sorted.map(p => `
+  const cards = items.map(p => `
     <div class="player-card" onclick="openPlayerModal(${Number(p.numero)})">
       <div class="player-img">
         <img src="${p.foto && p.foto.trim() ? p.foto : 'https://via.placeholder.com/300x400/111111/ffffff?text=Colleferro'}" alt="${p.nome} ${p.cognome}">
@@ -309,8 +307,6 @@ function renderRosa(){
   }
 }
 
-}
-
 function openPlayerModal(numero){
   numero = Number(numero);
   const player = (appData.rosa || []).find(p => Number(p.numero) === numero);
@@ -344,6 +340,11 @@ function openPlayerModal(numero){
 }
 
 function closePlayerModal(e){
+  if(e.target.id === "playerModal"){
+    document.getElementById("playerModal").style.display = "none";
+  }
+}
+
 function openPlayerModalEx(nome, cognome){
   const player = (appData.calciatrici_cedute || []).find(p => (p.nome || "") === nome && (p.cognome || "") === cognome);
   if(!player) return;
@@ -375,12 +376,6 @@ function openPlayerModalEx(nome, cognome){
   document.getElementById("playerModal").style.display = "flex";
 }
 
-window.openPlayerModalEx = openPlayerModalEx;
-
-  if(e.target.id === "playerModal"){
-    document.getElementById("playerModal").style.display = "none";
-  }
-}
 
 function renderInfo(){
   const s = appData.social || {};
@@ -436,6 +431,8 @@ async function init(){
 }
 
 window.openPlayerModal = openPlayerModal;
+window.openPlayerModalEx = openPlayerModalEx;
+
 window.closePlayerModal = closePlayerModal;
 
 init();
