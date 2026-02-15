@@ -376,7 +376,6 @@ function openPlayerModalEx(nome, cognome){
   document.getElementById("playerModal").style.display = "flex";
 }
 
-
 function renderInfo(){
   const s = appData.social || {};
   const i = appData.info || {};
@@ -432,8 +431,8 @@ async function init(){
 
 window.openPlayerModal = openPlayerModal;
 window.openPlayerModalEx = openPlayerModalEx;
-
 window.closePlayerModal = closePlayerModal;
 
 init();
+
 
