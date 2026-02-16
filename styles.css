@@ -362,3 +362,24 @@ a{color:var(--text)}
 .player-ex-card{
   opacity:.92;
 }
+.subtabs{
+  display:flex;
+  gap:8px;
+  margin-bottom:10px;
+}
+
+.subtab{
+  flex:1;
+  border:1px solid var(--line);
+  background: rgba(18,18,18,.7);
+  color:var(--text);
+  padding:10px 12px;
+  border-radius:14px;
+  font-weight:800;
+  cursor:pointer;
+}
+
+.subtab.is-active{
+  border-color: rgba(212,0,26,.7);
+  background: linear-gradient(135deg, rgba(212,0,26,.25), rgba(18,18,18,.7));
+}
