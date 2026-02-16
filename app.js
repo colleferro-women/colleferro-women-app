@@ -11,7 +11,8 @@ let appData = null;
 function setActive(viewKey){
   document.querySelectorAll(".tab").forEach(b => b.classList.toggle("is-active", b.dataset.view === viewKey));
   document.querySelectorAll(".view").forEach(v => v.classList.remove("is-active"));
-  document.getElementById(`view-${viewKey}`).classList.add("is-active");
+  const el = document.getElementById(`view-${viewKey}`);
+  if(el) el.classList.add("is-active");
 }
 
 function fmtDate(iso){
@@ -22,7 +23,7 @@ function fmtDate(iso){
 
 function toDateTimeISO(dateStr, timeStr){
   if(!dateStr) return null;
-  const t = (timeStr && timeStr.trim()) ? timeStr.trim() : "00:00";
+  const t = (timeStr && String(timeStr).trim()) ? String(timeStr).trim() : "00:00";
   return new Date(`${dateStr}T${t}:00`);
 }
 
@@ -38,7 +39,7 @@ function getNextMatch(items){
 
 function getLastPlayed(items){
   const played = (items || [])
-    .filter(m => m.data && m.risultato && String(m.risultato).trim())
+    .filter(m => m.data && m.risultato && String(m.risultato).trim() && String(m.risultato).trim().toLowerCase() !== "riposo")
     .map(m => ({...m, _dt: toDateTimeISO(m.data, m.ora)}))
     .filter(m => m._dt)
     .sort((a,b)=> b._dt - a._dt);
@@ -53,7 +54,7 @@ function renderNews(){
   const last = getLastPlayed(cal);
 
   const interviste = news
-    .map((n, idx) => ({...n, _id: n.id ?? idx}))
+    .map((n, idx) => ({...n, _id: (n.id ?? idx)}))
     .filter(n => (n.categoria || "").toLowerCase() === "intervista")
     .slice().sort((a,b)=> (b.data||"").localeCompare(a.data||""));
 
@@ -113,32 +114,26 @@ function renderNews(){
 }
 
 function renderCalendario(){
-
   function formatMarcatori(text){
     if(!text || text === "Riposo") return text;
 
     const goals = {};
-    const entries = text.split(";");
+    const entries = String(text).split(";");
 
     entries.forEach(e => {
-      const trimmed = e.trim();
+      const trimmed = String(e).trim();
       if(!trimmed) return;
       if (trimmed.toLowerCase().includes("autogol")) return;
 
-      const parts = trimmed.split(" ");
-      const namePart = (parts[0] || "") + " " + (parts[1] || "");
-      const cleanName = namePart.trim();
+      const parts = trimmed.split(" ").filter(Boolean);
+      const namePart = ((parts[0] || "") + " " + (parts[1] || "")).trim();
+      if(!namePart) return;
 
       const goalsCount = trimmed.includes(",") ? trimmed.split(",").length : 1;
-
-      if(cleanName){
-        goals[cleanName] = (goals[cleanName] || 0) + goalsCount;
-      }
+      goals[namePart] = (goals[namePart] || 0) + goalsCount;
     });
 
-    return Object.keys(goals).map(name => {
-      return `${name} ${"⚽".repeat(goals[name])}`;
-    }).join(" • ");
+    return Object.keys(goals).map(name => `${name} ${"⚽".repeat(goals[name])}`).join(" • ");
   }
 
   const items = appData.calendario || [];
@@ -150,31 +145,32 @@ function renderCalendario(){
 
   views.calendario.innerHTML = items
     .slice().sort((a,b)=> (a.data||"").localeCompare(b.data||""))
-    .map(m => `
-      <div class="card">
-        <div class="meta">Giornata ${m.giornata ?? "-"}</div>
-        <h3>${m.casa} <span class="meta">vs</span> ${m.trasferta}</h3>
-        <div class="meta">${fmtDate(m.data)} • ${m.ora || ""} • ${m.campo || ""}</div>
+    .map(m => {
+      const isRiposo = (String(m.risultato || "").trim().toLowerCase() === "riposo") || (m.marcatori === "Riposo");
+      return `
+        <div class="card">
+          <div class="meta">Giornata ${m.giornata ?? "-"}</div>
+          <h3>${m.casa} <span class="meta">vs</span> ${m.trasferta}</h3>
+          <div class="meta">${fmtDate(m.data)} • ${m.ora || ""} • ${m.campo || ""}</div>
 
-        <div style="margin-top:10px">
-          <span class="badge">
-            ${m.risultato ? "Risultato: " + m.risultato : "Da giocare"}
-          </span>
+          ${isRiposo ? `
+            <div style="margin-top:10px">
+              <span class="badge">Riposo</span>
+            </div>
+          ` : `
+            <div style="margin-top:10px">
+              <span class="badge">${m.risultato ? "Risultato: " + m.risultato : "Da giocare"}</span>
+            </div>
+          `}
+
+          ${!isRiposo && m.marcatori ? `
+            <div style="margin-top:8px; font-size:13px; color:#b9b9b9;">
+              <strong>Marcatori:</strong> ${formatMarcatori(m.marcatori)}
+            </div>
+          ` : ``}
         </div>
-
-        ${m.marcatori && m.marcatori !== "Riposo" ? `
-          <div style="margin-top:8px; font-size:13px; color:#b9b9b9;">
-            <strong>Marcatori:</strong> ${formatMarcatori(m.marcatori)}
-          </div>
-        ` : ""}
-
-        ${m.marcatori === "Riposo" ? `
-          <div style="margin-top:8px; font-size:13px; color:#b9b9b9;">
-            <strong>Riposo</strong>
-          </div>
-        ` : ""}
-      </div>
-    `).join("");
+      `;
+    }).join("");
 }
 
 function renderClassifica(){
@@ -192,11 +188,13 @@ function renderClassifica(){
     (calItems || []).forEach(m => {
       const text = (m.marcatori || "").trim();
       if(!text || text === "Riposo") return;
-      if(!m.risultato || !String(m.risultato).trim()) return;
 
-      const entries = text.split(";");
+      const res = String(m.risultato || "").trim();
+      if(!res || res.toLowerCase() === "riposo") return;
+
+      const entries = String(text).split(";");
       entries.forEach(e => {
-        const trimmed = e.trim();
+        const trimmed = String(e).trim();
         if(!trimmed) return;
         if(trimmed.toLowerCase().includes("autogol")) return;
 
@@ -216,7 +214,6 @@ function renderClassifica(){
   const rows = items
     .slice().sort((a,b)=> (a.pos ?? 999) - (b.pos ?? 999))
     .map((r, _, array) => {
-
       const isColleferro = (r.squadra || "").toLowerCase().includes("colleferro women");
       const isPlayoff = r.pos === 1 || r.pos === 2;
       const isRetro = r.pos === array.length;
@@ -314,7 +311,6 @@ function renderClassifica(){
   });
 }
 
-
 function renderRosa(){
   const items = appData.rosa || [];
   const ex = appData.calciatrici_cedute || [];
@@ -395,11 +391,13 @@ function openPlayerModal(numero){
   const player = (appData.rosa || []).find(p => Number(p.numero) === numero);
   if(!player) return;
 
-  const stats = (player.ruolo || "").toLowerCase() === "portiere" ? `
-      <div class="stat-box"><div>Reti inviolate</div><strong>${player.reti_inviolate ?? 0}</strong></div>
-      <div class="stat-box"><div>Reti subite</div><strong>${player.reti_subite ?? 0}</strong></div>
+  const isPortiere = (player.ruolo || "").toLowerCase() === "portiere";
+
+  const extra = isPortiere ? `
+    <div class="stat-box"><div>Reti inviolate</div><strong>${player.reti_inviolate ?? 0}</strong></div>
+    <div class="stat-box"><div>Reti subite</div><strong>${player.reti_subite ?? 0}</strong></div>
   ` : `
-      <div class="stat-box"><div>Goal fatti</div><strong>${player.gol ?? 0}</strong></div>
+    <div class="stat-box"><div>Goal fatti</div><strong>${player.gol ?? 0}</strong></div>
   `;
 
   document.getElementById("playerModalContent").innerHTML = `
@@ -411,10 +409,10 @@ function openPlayerModal(numero){
       <div class="modal-meta">${player.ruolo || ""}</div>
       <div class="modal-meta">Data di nascita: ${player.data_nascita ?? "-"}</div>
 
-      <div class="player-stats-grid">
+      <div class="stats-grid">
         <div class="stat-box"><div>Presenze</div><strong>${player.presenze ?? 0}</strong></div>
         <div class="stat-box"><div>Minuti</div><strong>${player.minuti ?? 0}</strong></div>
-        ${stats}
+        ${extra}
       </div>
     </div>
   `;
@@ -423,7 +421,7 @@ function openPlayerModal(numero){
 }
 
 function closePlayerModal(e){
-  if(e.target.id === "playerModal"){
+  if(e.target && e.target.id === "playerModal"){
     document.getElementById("playerModal").style.display = "none";
   }
 }
@@ -432,11 +430,13 @@ function openPlayerModalEx(nome, cognome){
   const player = (appData.calciatrici_cedute || []).find(p => (p.nome || "") === nome && (p.cognome || "") === cognome);
   if(!player) return;
 
-  const stats = (player.ruolo || "").toLowerCase() === "portiere" ? `
-      <div class="stat-box"><div>Reti inviolate</div><strong>${player.reti_inviolate ?? 0}</strong></div>
-      <div class="stat-box"><div>Reti subite</div><strong>${player.reti_subite ?? 0}</strong></div>
+  const isPortiere = (player.ruolo || "").toLowerCase() === "portiere";
+
+  const extra = isPortiere ? `
+    <div class="stat-box"><div>Reti inviolate</div><strong>${player.reti_inviolate ?? 0}</strong></div>
+    <div class="stat-box"><div>Reti subite</div><strong>${player.reti_subite ?? 0}</strong></div>
   ` : `
-      <div class="stat-box"><div>Goal fatti</div><strong>${player.gol ?? 0}</strong></div>
+    <div class="stat-box"><div>Goal fatti</div><strong>${player.gol ?? 0}</strong></div>
   `;
 
   document.getElementById("playerModalContent").innerHTML = `
@@ -448,18 +448,19 @@ function openPlayerModalEx(nome, cognome){
       <div class="modal-meta">${player.ruolo || ""}</div>
       <div class="modal-meta">Data di nascita: ${player.data_nascita ?? "-"}</div>
 
-      <div class="player-stats-grid">
+      <div class="stats-grid">
         <div class="stat-box"><div>Presenze</div><strong>${player.presenze ?? 0}</strong></div>
         <div class="stat-box"><div>Minuti</div><strong>${player.minuti ?? 0}</strong></div>
-        ${stats}
+        ${extra}
       </div>
     </div>
   `;
 
   document.getElementById("playerModal").style.display = "flex";
 }
+
 function openNewsModal(id){
-  const list = (appData.news || []).map((n, idx) => ({...n, _id: n.id ?? idx}));
+  const list = (appData.news || []).map((n, idx) => ({...n, _id: (n.id ?? idx)}));
   const item = list.find(x => String(x._id) === String(id));
   if(!item) return;
 
@@ -468,7 +469,10 @@ function openNewsModal(id){
   const text = (item.testo || "").trim();
   const link = (item.link || "").trim();
 
-  document.getElementById("newsModalContent").innerHTML = `
+  const box = document.getElementById("newsModalContent");
+  if(!box) return;
+
+  box.innerHTML = `
     <div class="modal-body">
       <div class="badge">${date}</div>
       <h2 style="margin-top:10px;">${title}</h2>
@@ -481,9 +485,10 @@ function openNewsModal(id){
 }
 
 function closeNewsModal(e){
-  if(e.target.id === "newsModal"){
+  if(e.target && e.target.id === "newsModal"){
     document.getElementById("newsModal").style.display = "none";
   }
+}
 
 function renderInfo(){
   const s = appData.social || {};
@@ -545,7 +550,12 @@ async function init(){
     deferredPrompt = null;
     installBtn.hidden = true;
   });
-  window.openNewsModal = openNewsModal;
-window.closeNewsModal = closeNewsModal;
 }
 
+window.openPlayerModal = openPlayerModal;
+window.closePlayerModal = closePlayerModal;
+window.openPlayerModalEx = openPlayerModalEx;
+window.openNewsModal = openNewsModal;
+window.closeNewsModal = closeNewsModal;
+
+init();
