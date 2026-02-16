@@ -393,3 +393,25 @@ a{color:var(--text)}
 .news-item:active{
   transform: scale(0.99);
 }
+.brand{
+  display:flex;
+  gap:12px;
+  align-items:center;
+  justify-content:space-between;
+}
+
+.brand__insta{
+  font-size:13px;
+  font-weight:700;
+  text-decoration:none;
+  color:#fff;
+  background: linear-gradient(135deg, rgba(212,0,26,.35), rgba(255,0,0,.2));
+  padding:6px 10px;
+  border-radius:12px;
+  border:1px solid rgba(212,0,26,.6);
+  transition:.2s;
+}
+
+.brand__insta:hover{
+  background: linear-gradient(135deg, rgba(212,0,26,.55), rgba(255,0,0,.3));
+}
