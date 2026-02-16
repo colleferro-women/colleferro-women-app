@@ -9,41 +9,47 @@ const views = {
 let appData = null;
 
 function setActive(viewKey){
-  document.querySelectorAll(".tab").forEach(b => b.classList.toggle("is-active", b.dataset.view === viewKey));
-  document.querySelectorAll(".view").forEach(v => v.classList.remove("is-active"));
-  const el = document.getElementById(`view-${viewKey}`);
-  if(el) el.classList.add("is-active");
+  document.querySelectorAll(".tab").forEach(b =>
+    b.classList.toggle("is-active", b.dataset.view === viewKey)
+  );
+  document.querySelectorAll(".view").forEach(v =>
+    v.classList.remove("is-active")
+  );
+  document.getElementById(`view-${viewKey}`).classList.add("is-active");
 }
 
 function fmtDate(iso){
   if(!iso) return "";
   const d = new Date(iso + "T00:00:00");
-  return d.toLocaleDateString("it-IT", { weekday:"short", day:"2-digit", month:"2-digit", year:"numeric" });
+  return d.toLocaleDateString("it-IT", {
+    weekday:"short",
+    day:"2-digit",
+    month:"2-digit",
+    year:"numeric"
+  });
 }
 
 function toDateTimeISO(dateStr, timeStr){
   if(!dateStr) return null;
-  const t = (timeStr && String(timeStr).trim()) ? String(timeStr).trim() : "00:00";
+  const t = (timeStr && timeStr.trim()) ? timeStr.trim() : "00:00";
   return new Date(`${dateStr}T${t}:00`);
 }
 
 function getNextMatch(items){
   const now = new Date();
-  const upcoming = (items || [])
-    .filter(m => m.data && (!m.risultato || !String(m.risultato).trim()) && m.marcatori !== "Riposo")
+  return (items || [])
+    .filter(m => m.data && (!m.risultato || !String(m.risultato).trim()))
     .map(m => ({...m, _dt: toDateTimeISO(m.data, m.ora)}))
     .filter(m => m._dt && m._dt >= now)
-    .sort((a,b)=> a._dt - b._dt);
-  return upcoming[0] || null;
+    .sort((a,b)=> a._dt - b._dt)[0] || null;
 }
 
 function getLastPlayed(items){
-  const played = (items || [])
-    .filter(m => m.data && m.risultato && String(m.risultato).trim() && String(m.risultato).trim().toLowerCase() !== "riposo")
+  return (items || [])
+    .filter(m => m.data && m.risultato && String(m.risultato).trim())
     .map(m => ({...m, _dt: toDateTimeISO(m.data, m.ora)}))
     .filter(m => m._dt)
-    .sort((a,b)=> b._dt - a._dt);
-  return played[0] || null;
+    .sort((a,b)=> b._dt - a._dt)[0] || null;
 }
 
 function renderNews(){
@@ -54,9 +60,9 @@ function renderNews(){
   const last = getLastPlayed(cal);
 
   const interviste = news
-    .map((n, idx) => ({...n, _id: (n.id ?? idx)}))
+    .map((n, idx) => ({...n, _id: n.id ?? idx}))
     .filter(n => (n.categoria || "").toLowerCase() === "intervista")
-    .slice().sort((a,b)=> (b.data||"").localeCompare(a.data||""));
+    .sort((a,b)=> (b.data||"").localeCompare(a.data||""));
 
   const header = `
     <div class="news-header">
@@ -70,11 +76,13 @@ function renderNews(){
     <div class="card">
       <h3>Prossima partita</h3>
       ${next ? `
-        <div style="font-weight:900; margin-top:6px">${next.casa} <span class="meta">vs</span> ${next.trasferta}</div>
-        <div class="meta">${fmtDate(next.data)} • ${next.ora || ""} • ${next.campo || ""}</div>
-      ` : `
-        <div class="meta" style="margin-top:6px">Da definire</div>
-      `}
+        <div style="font-weight:900; margin-top:6px">
+          ${next.casa} <span class="meta">vs</span> ${next.trasferta}
+        </div>
+        <div class="meta">
+          ${fmtDate(next.data)} • ${next.ora || ""} • ${next.campo || ""}
+        </div>
+      ` : `<div class="meta" style="margin-top:6px">Da definire</div>`}
     </div>
   `;
 
@@ -82,31 +90,28 @@ function renderNews(){
     <div class="card">
       <h3>Ultimo risultato</h3>
       ${last ? `
-        <div style="font-weight:900; margin-top:6px">${last.casa} <span class="meta">vs</span> ${last.trasferta}</div>
-        <div class="meta">${fmtDate(last.data)} • <span class="badge">Risultato: ${last.risultato}</span></div>
-      ` : `
-        <div class="meta" style="margin-top:6px">Nessun risultato disponibile</div>
-      `}
+        <div style="font-weight:900; margin-top:6px">
+          ${last.casa} <span class="meta">vs</span> ${last.trasferta}
+        </div>
+        <div class="meta">
+          ${fmtDate(last.data)} •
+          <span class="badge">Risultato: ${last.risultato}</span>
+        </div>
+      ` : `<div class="meta" style="margin-top:6px">Nessun risultato disponibile</div>`}
     </div>
   `;
 
   const blockInterviste = `
     <div class="card">
       <h3>Interviste</h3>
-      ${interviste.length ? interviste.map(n => {
-        const full = (n.testo || "").trim();
-        const breve = (n.testo_breve && String(n.testo_breve).trim())
-          ? String(n.testo_breve).trim()
-          : (full.length > 120 ? full.slice(0, 120) + "…" : full);
-
-        return `
-          <article class="news-item" onclick="openNewsModal('${String(n._id).replace(/'/g,"&#39;")}')">
-            <div class="badge">${fmtDate(n.data)}</div>
-            <div style="font-weight:900; margin-top:6px">${n.titolo || ""}</div>
-            ${breve ? `<div class="meta" style="margin-top:6px">${breve}</div>` : ``}
-          </article>
-        `;
-      }).join("") : `<div class="meta" style="margin-top:6px">Nessuna intervista pubblicata</div>`}
+      ${interviste.length ? interviste.map(n => `
+        <article class="news-item"
+          onclick="openNewsModal('${String(n._id).replace(/'/g,"&#39;")}')">
+          <div class="badge">${fmtDate(n.data)}</div>
+          <div style="font-weight:900; margin-top:6px">${n.titolo || ""}</div>
+        </article>
+      `).join("") :
+      `<div class="meta" style="margin-top:6px">Nessuna intervista pubblicata</div>`}
     </div>
   `;
 
@@ -114,142 +119,90 @@ function renderNews(){
 }
 
 function renderCalendario(){
+
   function formatMarcatori(text){
-    if(!text || text === "Riposo") return text;
-
+    if(!text) return "";
     const goals = {};
-    const entries = String(text).split(";");
-
-    entries.forEach(e => {
-      const trimmed = String(e).trim();
-      if(!trimmed) return;
-      if (trimmed.toLowerCase().includes("autogol")) return;
-
+    text.split(";").forEach(e=>{
+      const trimmed = e.trim();
+      if(!trimmed || trimmed.toLowerCase().includes("autogol")) return;
       const parts = trimmed.split(" ").filter(Boolean);
-      const namePart = ((parts[0] || "") + " " + (parts[1] || "")).trim();
-      if(!namePart) return;
-
-      const goalsCount = trimmed.includes(",") ? trimmed.split(",").length : 1;
-      goals[namePart] = (goals[namePart] || 0) + goalsCount;
+      const name = ((parts[0]||"") + " " + (parts[1]||"")).trim();
+      const count = trimmed.includes(",") ? trimmed.split(",").length : 1;
+      if(name) goals[name] = (goals[name]||0)+count;
     });
-
-    return Object.keys(goals).map(name => `${name} ${"⚽".repeat(goals[name])}`).join(" • ");
+    return Object.keys(goals)
+      .map(n => `${n} ${"⚽".repeat(goals[n])}`)
+      .join(" • ");
   }
 
   const items = appData.calendario || [];
 
-  if(!items.length){
-    views.calendario.innerHTML = `<div class="card"><h3>Nessuna partita</h3><div class="meta">Aggiungi partite in data.json</div></div>`;
-    return;
-  }
-
   views.calendario.innerHTML = items
-    .slice().sort((a,b)=> (a.data||"").localeCompare(b.data||""))
-    .map(m => {
-      const isRiposo = (String(m.risultato || "").trim().toLowerCase() === "riposo") || (m.marcatori === "Riposo");
-      return `
-        <div class="card">
-          <div class="meta">Giornata ${m.giornata ?? "-"}</div>
-          <h3>${m.casa} <span class="meta">vs</span> ${m.trasferta}</h3>
-          <div class="meta">${fmtDate(m.data)} • ${m.ora || ""} • ${m.campo || ""}</div>
-
-          ${isRiposo ? `
-            <div style="margin-top:10px">
-              <span class="badge">Riposo</span>
-            </div>
-          ` : `
-            <div style="margin-top:10px">
-              <span class="badge">${m.risultato ? "Risultato: " + m.risultato : "Da giocare"}</span>
-            </div>
-          `}
-
-          ${!isRiposo && m.marcatori ? `
-            <div style="margin-top:8px; font-size:13px; color:#b9b9b9;">
-              <strong>Marcatori:</strong> ${formatMarcatori(m.marcatori)}
-            </div>
-          ` : ``}
+    .sort((a,b)=> (a.data||"").localeCompare(b.data||""))
+    .map(m=>`
+      <div class="card">
+        <div class="meta">Giornata ${m.giornata ?? "-"}</div>
+        <h3>${m.casa} <span class="meta">vs</span> ${m.trasferta}</h3>
+        <div class="meta">
+          ${fmtDate(m.data)} • ${m.ora||""} • ${m.campo||""}
         </div>
-      `;
-    }).join("");
+        <div style="margin-top:10px">
+          <span class="badge">
+            ${m.risultato ? "Risultato: "+m.risultato : "Da giocare"}
+          </span>
+        </div>
+        ${m.marcatori ?
+          `<div style="margin-top:8px;font-size:13px;color:#b9b9b9;">
+            <strong>Marcatori:</strong> ${formatMarcatori(m.marcatori)}
+           </div>` : ""}
+      </div>
+    `).join("");
 }
 
 function renderClassifica(){
   const items = appData.classifica || [];
   const cal = appData.calendario || [];
 
-  if(!items.length){
-    views.classifica.innerHTML = `<div class="card"><h3>Classifica non disponibile</h3></div>`;
-    return;
-  }
-
-  function buildMarcatori(calItems){
+  function buildMarcatori(){
     const goals = {};
-
-    (calItems || []).forEach(m => {
-      const text = (m.marcatori || "").trim();
-      if(!text || text === "Riposo") return;
-
-      const res = String(m.risultato || "").trim();
-      if(!res || res.toLowerCase() === "riposo") return;
-
-      const entries = String(text).split(";");
-      entries.forEach(e => {
-        const trimmed = String(e).trim();
-        if(!trimmed) return;
-        if(trimmed.toLowerCase().includes("autogol")) return;
-
+    cal.forEach(m=>{
+      if(!m.marcatori) return;
+      m.marcatori.split(";").forEach(e=>{
+        const trimmed = e.trim();
+        if(!trimmed || trimmed.toLowerCase().includes("autogol")) return;
         const parts = trimmed.split(" ").filter(Boolean);
-        const name = ((parts[0] || "") + " " + (parts[1] || "")).trim();
-        if(!name) return;
-
-        const goalsCount = trimmed.includes(",") ? trimmed.split(",").length : 1;
-        goals[name] = (goals[name] || 0) + goalsCount;
+        const name = ((parts[0]||"")+" "+(parts[1]||"")).trim();
+        const count = trimmed.includes(",") ? trimmed.split(",").length : 1;
+        if(name) goals[name]=(goals[name]||0)+count;
       });
     });
-
-    return Object.keys(goals).map(n => ({ nome: n, gol: goals[n] }))
-      .sort((a,b)=> (b.gol - a.gol) || a.nome.localeCompare(b.nome));
+    return Object.keys(goals)
+      .map(n=>({nome:n,gol:goals[n]}))
+      .sort((a,b)=>b.gol-a.gol);
   }
 
-  const rows = items
-    .slice().sort((a,b)=> (a.pos ?? 999) - (b.pos ?? 999))
-    .map((r, _, array) => {
-      const isColleferro = (r.squadra || "").toLowerCase().includes("colleferro women");
-      const isPlayoff = r.pos === 1 || r.pos === 2;
-      const isRetro = r.pos === array.length;
-
-      let rowClass = "";
-      if (isPlayoff) rowClass = "row-playoff";
-      if (isRetro) rowClass = "row-retrocessione";
-      if (isColleferro) rowClass += " row-strong";
-
-      return `
-        <tr class="${rowClass}">
-          <td>${r.pos}</td>
-          <td>${r.squadra}</td>
-          <td>${r.pti}</td>
-          <td>${r.g}</td>
-          <td>${r.v}</td>
-          <td>${r.n}</td>
-          <td>${r.s}</td>
-          <td>${r.gf}</td>
-          <td>${r.gs}</td>
-        </tr>
-      `;
-    }).join("");
-
-  const marcatori = buildMarcatori(cal);
-  const marcatoriRows = marcatori.length ? marcatori.map((p, idx) => `
+  const rows = items.map(r=>`
     <tr>
-      <td>${idx + 1}</td>
+      <td>${r.pos}</td>
+      <td>${r.squadra}</td>
+      <td>${r.pti}</td>
+      <td>${r.g}</td>
+      <td>${r.v}</td>
+      <td>${r.n}</td>
+      <td>${r.s}</td>
+      <td>${r.gf}</td>
+      <td>${r.gs}</td>
+    </tr>
+  `).join("");
+
+  const marcatori = buildMarcatori().map((p,i)=>`
+    <tr>
+      <td>${i+1}</td>
       <td>${p.nome}</td>
       <td><strong>${p.gol}</strong></td>
     </tr>
-  `).join("") : `
-    <tr>
-      <td colspan="3" class="meta">Nessun marcatore disponibile</td>
-    </tr>
-  `;
+  `).join("");
 
   views.classifica.innerHTML = `
     <div class="card">
@@ -259,54 +212,37 @@ function renderClassifica(){
       </div>
 
       <div id="panel-tabella">
-        <h3 style="margin-top:8px;">Classifica</h3>
         <table class="table">
           <thead>
             <tr>
-              <th>Pos</th>
-              <th>Squadra</th>
-              <th>PT</th>
-              <th>G</th>
-              <th>V</th>
-              <th>N</th>
-              <th>S</th>
-              <th>GF</th>
-              <th>GS</th>
+              <th>Pos</th><th>Squadra</th><th>PT</th>
+              <th>G</th><th>V</th><th>N</th><th>S</th>
+              <th>GF</th><th>GS</th>
             </tr>
           </thead>
           <tbody>${rows}</tbody>
         </table>
-        <div style="margin-top:10px;font-size:12px;color:#b9b9b9;">
-          🟦 Playoff &nbsp;&nbsp; 🟥 Retrocessione
-        </div>
       </div>
 
       <div id="panel-marcatori" style="display:none">
-        <h3 style="margin-top:8px;">Classifica marcatori</h3>
         <table class="table">
           <thead>
-            <tr>
-              <th>Pos</th>
-              <th>Giocatrice</th>
-              <th>Gol</th>
-            </tr>
+            <tr><th>Pos</th><th>Giocatrice</th><th>Gol</th></tr>
           </thead>
-          <tbody>${marcatoriRows}</tbody>
+          <tbody>${marcatori}</tbody>
         </table>
       </div>
     </div>
   `;
 
   const btns = views.classifica.querySelectorAll(".subtab");
-  const panelTab = document.getElementById("panel-tabella");
-  const panelMar = document.getElementById("panel-marcatori");
-
-  btns.forEach(b => {
-    b.addEventListener("click", () => {
-      btns.forEach(x => x.classList.toggle("is-active", x === b));
-      const target = b.dataset.sub;
-      panelTab.style.display = target === "tabella" ? "block" : "none";
-      panelMar.style.display = target === "marcatori" ? "block" : "none";
+  btns.forEach(b=>{
+    b.addEventListener("click",()=>{
+      btns.forEach(x=>x.classList.toggle("is-active",x===b));
+      document.getElementById("panel-tabella").style.display =
+        b.dataset.sub==="tabella"?"block":"none";
+      document.getElementById("panel-marcatori").style.display =
+        b.dataset.sub==="marcatori"?"block":"none";
     });
   });
 }
@@ -315,179 +251,24 @@ function renderRosa(){
   const items = appData.rosa || [];
   const ex = appData.calciatrici_cedute || [];
 
-  if(!items.length){
-    views.rosa.innerHTML = `<div class="card"><h3>Rosa non disponibile</h3></div>`;
-    return;
-  }
-
-  const cards = items.map(p => `
-    <div class="player-card" onclick="openPlayerModal(${Number(p.numero)})">
+  const cards = items.map(p=>`
+    <div class="player-card"
+      onclick="openPlayerModal(${p.numero})">
       <div class="player-img">
-        <img src="${p.foto && p.foto.trim() ? p.foto : 'https://via.placeholder.com/300x400/111111/ffffff?text=Colleferro'}" alt="${p.nome} ${p.cognome}">
+        <img src="${p.foto || 'https://via.placeholder.com/300x400/111111/ffffff?text=Colleferro'}">
       </div>
       <div class="player-info">
-        <div class="player-number">#${p.numero ?? "-"}</div>
+        <div class="player-number">#${p.numero}</div>
         <div class="player-name">${p.nome} ${p.cognome}</div>
-        <div class="player-role">${p.ruolo ?? ""}</div>
-      </div>
-    </div>
-  `).join("");
-
-  const exCards = ex.map(p => `
-    <div class="player-card player-ex-card" onclick="openPlayerModalEx('${(p.nome || "").replace(/'/g,"&#39;")}','${(p.cognome || "").replace(/'/g,"&#39;")}')">
-      <div class="player-img">
-        <img src="${p.foto && p.foto.trim() ? p.foto : 'https://via.placeholder.com/300x400/111111/ffffff?text=Colleferro'}" alt="${p.nome} ${p.cognome}">
-      </div>
-      <div class="player-info">
-        <div class="player-number">EX</div>
-        <div class="player-name">${p.nome} ${p.cognome}</div>
-        <div class="player-role">${p.ruolo ?? ""}</div>
+        <div class="player-role">${p.ruolo}</div>
       </div>
     </div>
   `).join("");
 
   views.rosa.innerHTML = `
-    <div class="card">
-      <h3>Rosa</h3>
-      <div class="toggle-row">
-        <div class="meta">Mostra ex (Calciatrici cedute)</div>
-        <label class="switch">
-          <input id="toggleEx" type="checkbox" ${ex.length ? "" : "disabled"}>
-          <span class="slider"></span>
-        </label>
-      </div>
-      ${!ex.length ? `<div class="meta" style="margin-top:8px">Nessuna calciatrice ceduta inserita</div>` : ``}
-    </div>
-
-    <div class="grid-rosa">
-      ${cards}
-    </div>
-
-    <div id="exSection" style="display:none">
-      <div class="card">
-        <h3>Calciatrici cedute</h3>
-      </div>
-      <div class="grid-rosa">
-        ${exCards}
-      </div>
-    </div>
-
-    <div id="playerModal" class="player-modal" onclick="closePlayerModal(event)">
-      <div class="player-modal-content" id="playerModalContent"></div>
-    </div>
+    <div class="card"><h3>Rosa</h3></div>
+    <div class="grid-rosa">${cards}</div>
   `;
-
-  const toggle = document.getElementById("toggleEx");
-  if(toggle){
-    toggle.addEventListener("change", () => {
-      const section = document.getElementById("exSection");
-      if(section) section.style.display = toggle.checked ? "block" : "none";
-    });
-  }
-}
-
-function openPlayerModal(numero){
-  numero = Number(numero);
-  const player = (appData.rosa || []).find(p => Number(p.numero) === numero);
-  if(!player) return;
-
-  const isPortiere = (player.ruolo || "").toLowerCase() === "portiere";
-
-  const extra = isPortiere ? `
-    <div class="stat-box"><div>Reti inviolate</div><strong>${player.reti_inviolate ?? 0}</strong></div>
-    <div class="stat-box"><div>Reti subite</div><strong>${player.reti_subite ?? 0}</strong></div>
-  ` : `
-    <div class="stat-box"><div>Goal fatti</div><strong>${player.gol ?? 0}</strong></div>
-  `;
-
-  document.getElementById("playerModalContent").innerHTML = `
-    <div class="modal-header">
-      <img src="${player.foto && player.foto.trim() ? player.foto : 'https://via.placeholder.com/400x500/111111/ffffff?text=Colleferro'}">
-    </div>
-    <div class="modal-body">
-      <h2>#${player.numero} ${player.nome} ${player.cognome}</h2>
-      <div class="modal-meta">${player.ruolo || ""}</div>
-      <div class="modal-meta">Data di nascita: ${player.data_nascita ?? "-"}</div>
-
-      <div class="stats-grid">
-        <div class="stat-box"><div>Presenze</div><strong>${player.presenze ?? 0}</strong></div>
-        <div class="stat-box"><div>Minuti</div><strong>${player.minuti ?? 0}</strong></div>
-        ${extra}
-      </div>
-    </div>
-  `;
-
-  document.getElementById("playerModal").style.display = "flex";
-}
-
-function closePlayerModal(e){
-  if(e.target && e.target.id === "playerModal"){
-    document.getElementById("playerModal").style.display = "none";
-  }
-}
-
-function openPlayerModalEx(nome, cognome){
-  const player = (appData.calciatrici_cedute || []).find(p => (p.nome || "") === nome && (p.cognome || "") === cognome);
-  if(!player) return;
-
-  const isPortiere = (player.ruolo || "").toLowerCase() === "portiere";
-
-  const extra = isPortiere ? `
-    <div class="stat-box"><div>Reti inviolate</div><strong>${player.reti_inviolate ?? 0}</strong></div>
-    <div class="stat-box"><div>Reti subite</div><strong>${player.reti_subite ?? 0}</strong></div>
-  ` : `
-    <div class="stat-box"><div>Goal fatti</div><strong>${player.gol ?? 0}</strong></div>
-  `;
-
-  document.getElementById("playerModalContent").innerHTML = `
-    <div class="modal-header">
-      <img src="${player.foto && player.foto.trim() ? player.foto : 'https://via.placeholder.com/400x500/111111/ffffff?text=Colleferro'}">
-    </div>
-    <div class="modal-body">
-      <h2>EX • ${player.nome} ${player.cognome}</h2>
-      <div class="modal-meta">${player.ruolo || ""}</div>
-      <div class="modal-meta">Data di nascita: ${player.data_nascita ?? "-"}</div>
-
-      <div class="stats-grid">
-        <div class="stat-box"><div>Presenze</div><strong>${player.presenze ?? 0}</strong></div>
-        <div class="stat-box"><div>Minuti</div><strong>${player.minuti ?? 0}</strong></div>
-        ${extra}
-      </div>
-    </div>
-  `;
-
-  document.getElementById("playerModal").style.display = "flex";
-}
-
-function openNewsModal(id){
-  const list = (appData.news || []).map((n, idx) => ({...n, _id: (n.id ?? idx)}));
-  const item = list.find(x => String(x._id) === String(id));
-  if(!item) return;
-
-  const title = item.titolo || "";
-  const date = item.data ? fmtDate(item.data) : "";
-  const text = (item.testo || "").trim();
-  const link = (item.link || "").trim();
-
-  const box = document.getElementById("newsModalContent");
-  if(!box) return;
-
-  box.innerHTML = `
-    <div class="modal-body">
-      <div class="badge">${date}</div>
-      <h2 style="margin-top:10px;">${title}</h2>
-      ${text ? `<div class="meta" style="margin-top:10px; font-size:14px; line-height:1.55; color:#e6e6e6;">${text.replace(/\n/g,"<br>")}</div>` : ``}
-      ${link ? `<div style="margin-top:14px;"><a href="${link}" target="_blank" rel="noopener">Apri link</a></div>` : ``}
-    </div>
-  `;
-
-  document.getElementById("newsModal").style.display = "flex";
-}
-
-function closeNewsModal(e){
-  if(e.target && e.target.id === "newsModal"){
-    document.getElementById("newsModal").style.display = "none";
-  }
 }
 
 function renderInfo(){
@@ -496,66 +277,31 @@ function renderInfo(){
   views.info.innerHTML = `
     <div class="card">
       <h3>Info</h3>
-      <p class="meta">Contatti e link ufficiali</p>
-      <p><strong>Email:</strong> ${i.contatto_email || "-"}</p>
-      <p><strong>Telefono:</strong> ${i.telefono || "-"}</p>
-      <p><strong>Campo:</strong> ${i.campo_nome || "-"}<br>${i.campo_indirizzo || "-"}</p>
-      <hr style="border:0;border-top:1px solid var(--line);margin:14px 0">
-      <p><strong>Instagram:</strong> <a href="${s.instagram || "#"}" target="_blank" rel="noopener">Apri</a></p>
-      <p><strong>Facebook:</strong> <a href="${s.facebook || "#"}" target="_blank" rel="noopener">Apri</a></p>
+      <p><strong>Email:</strong> ${i.contatto_email||"-"}</p>
+      <p><strong>Campo:</strong> ${i.campo_nome||"-"}</p>
+      <p><strong>Instagram:</strong>
+        <a href="${s.instagram||"#"}" target="_blank">Apri</a>
+      </p>
     </div>
   `;
 }
 
 async function init(){
   document.querySelectorAll(".tab").forEach(btn=>{
-    btn.addEventListener("click", ()=> setActive(btn.dataset.view));
+    btn.addEventListener("click",()=>setActive(btn.dataset.view));
   });
 
-  const res = await fetch("data.json", { cache: "no-store" });
+  const res = await fetch("data.json",{cache:"no-store"});
   appData = await res.json();
-
-  if(!document.getElementById("newsModal")){
-    const modal = document.createElement("div");
-    modal.id = "newsModal";
-    modal.className = "player-modal";
-    modal.setAttribute("onclick", "closeNewsModal(event)");
-    modal.innerHTML = `<div class="player-modal-content" id="newsModalContent"></div>`;
-    document.body.appendChild(modal);
-  }
 
   renderNews();
   renderCalendario();
   renderClassifica();
   renderRosa();
   renderInfo();
-
-  if ("serviceWorker" in navigator) {
-    try { await navigator.serviceWorker.register("sw.js"); } catch(e){}
-  }
-
-  let deferredPrompt = null;
-  const installBtn = document.getElementById("installBtn");
-
-  window.addEventListener("beforeinstallprompt", (e) => {
-    e.preventDefault();
-    deferredPrompt = e;
-    installBtn.hidden = false;
-  });
-
-  installBtn.addEventListener("click", async () => {
-    if(!deferredPrompt) return;
-    deferredPrompt.prompt();
-    await deferredPrompt.userChoice;
-    deferredPrompt = null;
-    installBtn.hidden = true;
-  });
 }
 
-window.openPlayerModal = openPlayerModal;
-window.closePlayerModal = closePlayerModal;
-window.openPlayerModalEx = openPlayerModalEx;
-window.openNewsModal = openNewsModal;
-window.closeNewsModal = closeNewsModal;
+window.openNewsModal = function(){};
+window.openPlayerModal = function(){};
 
 init();
