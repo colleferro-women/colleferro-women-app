@@ -53,6 +53,7 @@ function renderNews(){
   const last = getLastPlayed(cal);
 
   const interviste = news
+    .map((n, idx) => ({...n, _id: n.id ?? idx}))
     .filter(n => (n.categoria || "").toLowerCase() === "intervista")
     .slice().sort((a,b)=> (b.data||"").localeCompare(a.data||""));
 
@@ -91,14 +92,20 @@ function renderNews(){
   const blockInterviste = `
     <div class="card">
       <h3>Interviste</h3>
-      ${interviste.length ? interviste.map(n => `
-        <article style="margin-top:12px; padding-top:12px; border-top:1px solid var(--line);">
-          <div class="badge">${fmtDate(n.data)}</div>
-          <div style="font-weight:900; margin-top:6px">${n.titolo || ""}</div>
-          ${n.testo ? `<div class="meta" style="margin-top:6px">${n.testo}</div>` : ``}
-          ${n.link ? `<div style="margin-top:8px"><a href="${n.link}" target="_blank" rel="noopener">Apri</a></div>` : ``}
-        </article>
-      `).join("") : `<div class="meta" style="margin-top:6px">Nessuna intervista pubblicata</div>`}
+      ${interviste.length ? interviste.map(n => {
+        const full = (n.testo || "").trim();
+        const breve = (n.testo_breve && String(n.testo_breve).trim())
+          ? String(n.testo_breve).trim()
+          : (full.length > 120 ? full.slice(0, 120) + "…" : full);
+
+        return `
+          <article class="news-item" onclick="openNewsModal('${String(n._id).replace(/'/g,"&#39;")}')">
+            <div class="badge">${fmtDate(n.data)}</div>
+            <div style="font-weight:900; margin-top:6px">${n.titolo || ""}</div>
+            ${breve ? `<div class="meta" style="margin-top:6px">${breve}</div>` : ``}
+          </article>
+        `;
+      }).join("") : `<div class="meta" style="margin-top:6px">Nessuna intervista pubblicata</div>`}
     </div>
   `;
 
