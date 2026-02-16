@@ -545,5 +545,7 @@ async function init(){
     deferredPrompt = null;
     installBtn.hidden = true;
   });
+  window.openNewsModal = openNewsModal;
+window.closeNewsModal = closeNewsModal;
 }
 
