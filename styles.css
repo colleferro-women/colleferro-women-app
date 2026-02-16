@@ -277,7 +277,7 @@ a{color:var(--text)}
   margin-top:6px;
 }
 
-.player-stats-grid{
+.stats-grid{
   display:grid;
   grid-template-columns: repeat(2, 1fr);
   gap:10px;
