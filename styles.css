@@ -383,3 +383,13 @@ a{color:var(--text)}
   border-color: rgba(212,0,26,.7);
   background: linear-gradient(135deg, rgba(212,0,26,.25), rgba(18,18,18,.7));
 }
+.news-item{
+  margin-top:12px;
+  padding-top:12px;
+  border-top:1px solid var(--line);
+  cursor:pointer;
+}
+
+.news-item:active{
+  transform: scale(0.99);
+}
