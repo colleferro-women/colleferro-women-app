@@ -172,10 +172,38 @@ function renderCalendario(){
 
 function renderClassifica(){
   const items = appData.classifica || [];
+  const cal = appData.calendario || [];
 
   if(!items.length){
     views.classifica.innerHTML = `<div class="card"><h3>Classifica non disponibile</h3></div>`;
     return;
+  }
+
+  function buildMarcatori(calItems){
+    const goals = {};
+
+    (calItems || []).forEach(m => {
+      const text = (m.marcatori || "").trim();
+      if(!text || text === "Riposo") return;
+      if(!m.risultato || !String(m.risultato).trim()) return;
+
+      const entries = text.split(";");
+      entries.forEach(e => {
+        const trimmed = e.trim();
+        if(!trimmed) return;
+        if(trimmed.toLowerCase().includes("autogol")) return;
+
+        const parts = trimmed.split(" ").filter(Boolean);
+        const name = ((parts[0] || "") + " " + (parts[1] || "")).trim();
+        if(!name) return;
+
+        const goalsCount = trimmed.includes(",") ? trimmed.split(",").length : 1;
+        goals[name] = (goals[name] || 0) + goalsCount;
+      });
+    });
+
+    return Object.keys(goals).map(n => ({ nome: n, gol: goals[n] }))
+      .sort((a,b)=> (b.gol - a.gol) || a.nome.localeCompare(b.nome));
   }
 
   const rows = items
@@ -206,31 +234,79 @@ function renderClassifica(){
       `;
     }).join("");
 
+  const marcatori = buildMarcatori(cal);
+  const marcatoriRows = marcatori.length ? marcatori.map((p, idx) => `
+    <tr>
+      <td>${idx + 1}</td>
+      <td>${p.nome}</td>
+      <td><strong>${p.gol}</strong></td>
+    </tr>
+  `).join("") : `
+    <tr>
+      <td colspan="3" class="meta">Nessun marcatore disponibile</td>
+    </tr>
+  `;
+
   views.classifica.innerHTML = `
     <div class="card">
-      <h3>Classifica</h3>
-      <table class="table">
-        <thead>
-          <tr>
-            <th>Pos</th>
-            <th>Squadra</th>
-            <th>PT</th>
-            <th>G</th>
-            <th>V</th>
-            <th>N</th>
-            <th>S</th>
-            <th>GF</th>
-            <th>GS</th>
-          </tr>
-        </thead>
-        <tbody>${rows}</tbody>
-      </table>
-      <div style="margin-top:10px;font-size:12px;color:#b9b9b9;">
-        🟦 Playoff &nbsp;&nbsp; 🟥 Retrocessione
+      <div class="subtabs">
+        <button class="subtab is-active" data-sub="tabella">Classifica</button>
+        <button class="subtab" data-sub="marcatori">Marcatori</button>
+      </div>
+
+      <div id="panel-tabella">
+        <h3 style="margin-top:8px;">Classifica</h3>
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Pos</th>
+              <th>Squadra</th>
+              <th>PT</th>
+              <th>G</th>
+              <th>V</th>
+              <th>N</th>
+              <th>S</th>
+              <th>GF</th>
+              <th>GS</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+        <div style="margin-top:10px;font-size:12px;color:#b9b9b9;">
+          🟦 Playoff &nbsp;&nbsp; 🟥 Retrocessione
+        </div>
+      </div>
+
+      <div id="panel-marcatori" style="display:none">
+        <h3 style="margin-top:8px;">Classifica marcatori</h3>
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Pos</th>
+              <th>Giocatrice</th>
+              <th>Gol</th>
+            </tr>
+          </thead>
+          <tbody>${marcatoriRows}</tbody>
+        </table>
       </div>
     </div>
   `;
+
+  const btns = views.classifica.querySelectorAll(".subtab");
+  const panelTab = document.getElementById("panel-tabella");
+  const panelMar = document.getElementById("panel-marcatori");
+
+  btns.forEach(b => {
+    b.addEventListener("click", () => {
+      btns.forEach(x => x.classList.toggle("is-active", x === b));
+      const target = b.dataset.sub;
+      panelTab.style.display = target === "tabella" ? "block" : "none";
+      panelMar.style.display = target === "marcatori" ? "block" : "none";
+    });
+  });
 }
+
 
 function renderRosa(){
   const items = appData.rosa || [];
