@@ -458,6 +458,32 @@ function openPlayerModalEx(nome, cognome){
 
   document.getElementById("playerModal").style.display = "flex";
 }
+function openNewsModal(id){
+  const list = (appData.news || []).map((n, idx) => ({...n, _id: n.id ?? idx}));
+  const item = list.find(x => String(x._id) === String(id));
+  if(!item) return;
+
+  const title = item.titolo || "";
+  const date = item.data ? fmtDate(item.data) : "";
+  const text = (item.testo || "").trim();
+  const link = (item.link || "").trim();
+
+  document.getElementById("newsModalContent").innerHTML = `
+    <div class="modal-body">
+      <div class="badge">${date}</div>
+      <h2 style="margin-top:10px;">${title}</h2>
+      ${text ? `<div class="meta" style="margin-top:10px; font-size:14px; line-height:1.55; color:#e6e6e6;">${text.replace(/\n/g,"<br>")}</div>` : ``}
+      ${link ? `<div style="margin-top:14px;"><a href="${link}" target="_blank" rel="noopener">Apri link</a></div>` : ``}
+    </div>
+  `;
+
+  document.getElementById("newsModal").style.display = "flex";
+}
+
+function closeNewsModal(e){
+  if(e.target.id === "newsModal"){
+    document.getElementById("newsModal").style.display = "none";
+  }
 
 function renderInfo(){
   const s = appData.social || {};
@@ -483,6 +509,15 @@ async function init(){
 
   const res = await fetch("data.json", { cache: "no-store" });
   appData = await res.json();
+
+  if(!document.getElementById("newsModal")){
+    const modal = document.createElement("div");
+    modal.id = "newsModal";
+    modal.className = "player-modal";
+    modal.setAttribute("onclick", "closeNewsModal(event)");
+    modal.innerHTML = `<div class="player-modal-content" id="newsModalContent"></div>`;
+    document.body.appendChild(modal);
+  }
 
   renderNews();
   renderCalendario();
@@ -511,11 +546,4 @@ async function init(){
     installBtn.hidden = true;
   });
 }
-
-window.openPlayerModal = openPlayerModal;
-window.openPlayerModalEx = openPlayerModalEx;
-window.closePlayerModal = closePlayerModal;
-
-init();
-
 
