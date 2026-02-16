@@ -60,8 +60,10 @@ function ensureGlobalModals(){
     const modal = document.createElement("div");
     modal.id = "playerModal";
     modal.className = "player-modal";
-    modal.setAttribute("onclick", "closePlayerModal(event)");
     modal.innerHTML = `<div class="player-modal-content" id="playerModalContent"></div>`;
+    modal.addEventListener("click", (e) => {
+      if(e.target && e.target.id === "playerModal") closePlayerModal();
+    });
     document.body.appendChild(modal);
   }
 
@@ -69,113 +71,85 @@ function ensureGlobalModals(){
     const modal = document.createElement("div");
     modal.id = "newsModal";
     modal.className = "player-modal";
-    modal.setAttribute("onclick", "closeNewsModal(event)");
     modal.innerHTML = `<div class="player-modal-content" id="newsModalContent"></div>`;
+    modal.addEventListener("click", (e) => {
+      if(e.target && e.target.id === "newsModal") closeNewsModal();
+    });
     document.body.appendChild(modal);
   }
 }
 
+function closePlayerModal(){
+  const modal = document.getElementById("playerModal");
+  if(modal) modal.style.display = "none";
+}
+
+function closeNewsModal(){
+  const modal = document.getElementById("newsModal");
+  if(modal) modal.style.display = "none";
+}
+
+function openPlayerModalByPlayer(player, isEx){
+  if(!player) return;
+
+  const ruolo = (player.ruolo || "").toLowerCase();
+  const isPortiere = ruolo === "portiere";
+
+  const extraStats = isPortiere
+    ? `
+      <div class="stat-box"><div>Reti inviolate</div><strong>${player.reti_inviolate ?? 0}</strong></div>
+      <div class="stat-box"><div>Reti subite</div><strong>${player.reti_subite ?? 0}</strong></div>
+    `
+    : `
+      <div class="stat-box"><div>Goal fatti</div><strong>${player.gol ?? 0}</strong></div>
+      <div class="stat-box"><div>&nbsp;</div><strong>&nbsp;</strong></div>
+    `;
+
+  const foto = (player.foto && String(player.foto).trim())
+    ? String(player.foto).trim()
+    : "https://via.placeholder.com/400x500/111111/ffffff?text=Colleferro";
+
+  const content = document.getElementById("playerModalContent");
+  if(!content) return;
+
+  const title = isEx
+    ? `EX • ${escapeHtml(player.nome)} ${escapeHtml(player.cognome)}`
+    : `#${escapeHtml(player.numero)} ${escapeHtml(player.nome)} ${escapeHtml(player.cognome)}`;
+
+  content.innerHTML = `
+    <div class="modal-header">
+      <img src="${escapeHtml(foto)}" alt="${escapeHtml(player.nome)} ${escapeHtml(player.cognome)}">
+    </div>
+    <div class="modal-body">
+      <h2>${title}</h2>
+      <div class="modal-meta">${escapeHtml(player.ruolo || "")}</div>
+      <div class="modal-meta">Data di nascita: ${escapeHtml(player.data_nascita ?? "-")}</div>
+
+      <div class="stats-grid">
+        <div class="stat-box"><div>Presenze</div><strong>${player.presenze ?? 0}</strong></div>
+        <div class="stat-box"><div>Minuti</div><strong>${player.minuti ?? 0}</strong></div>
+        ${extraStats}
+      </div>
+    </div>
+  `;
+
+  const modal = document.getElementById("playerModal");
+  if(modal) modal.style.display = "flex";
+}
+
 function openPlayerModal(numero){
-  numero = Number(numero);
-  const player = (appData?.rosa || []).find(p => Number(p.numero) === numero);
-  if(!player) return;
-
-  const ruolo = (player.ruolo || "").toLowerCase();
-  const isPortiere = ruolo === "portiere";
-
-  const extraStats = isPortiere
-    ? `
-      <div class="stat-box"><div>Reti inviolate</div><strong>${player.reti_inviolate ?? 0}</strong></div>
-      <div class="stat-box"><div>Reti subite</div><strong>${player.reti_subite ?? 0}</strong></div>
-    `
-    : `
-      <div class="stat-box"><div>Goal fatti</div><strong>${player.gol ?? 0}</strong></div>
-      <div class="stat-box"><div>&nbsp;</div><strong>&nbsp;</strong></div>
-    `;
-
-  const foto = (player.foto && String(player.foto).trim())
-    ? String(player.foto).trim()
-    : "https://via.placeholder.com/400x500/111111/ffffff?text=Colleferro";
-
-  const content = document.getElementById("playerModalContent");
-  if(!content) return;
-
-  content.innerHTML = `
-    <div class="modal-header">
-      <img src="${escapeHtml(foto)}" alt="${escapeHtml(player.nome)} ${escapeHtml(player.cognome)}">
-    </div>
-    <div class="modal-body">
-      <h2>#${escapeHtml(player.numero)} ${escapeHtml(player.nome)} ${escapeHtml(player.cognome)}</h2>
-      <div class="modal-meta">${escapeHtml(player.ruolo || "")}</div>
-      <div class="modal-meta">Data di nascita: ${escapeHtml(player.data_nascita ?? "-")}</div>
-
-      <div class="stats-grid">
-        <div class="stat-box"><div>Presenze</div><strong>${player.presenze ?? 0}</strong></div>
-        <div class="stat-box"><div>Minuti</div><strong>${player.minuti ?? 0}</strong></div>
-        ${extraStats}
-      </div>
-    </div>
-  `;
-
-  const modal = document.getElementById("playerModal");
-  if(modal) modal.style.display = "flex";
+  const n = Number(numero);
+  const player = (appData?.rosa || []).find(p => Number(p.numero) === n);
+  openPlayerModalByPlayer(player, false);
 }
 
-function openPlayerModalEx(nome, cognome){
-  const player = (appData?.calciatrici_cedute || []).find(p => (p.nome || "") === nome && (p.cognome || "") === cognome);
-  if(!player) return;
-
-  const ruolo = (player.ruolo || "").toLowerCase();
-  const isPortiere = ruolo === "portiere";
-
-  const extraStats = isPortiere
-    ? `
-      <div class="stat-box"><div>Reti inviolate</div><strong>${player.reti_inviolate ?? 0}</strong></div>
-      <div class="stat-box"><div>Reti subite</div><strong>${player.reti_subite ?? 0}</strong></div>
-    `
-    : `
-      <div class="stat-box"><div>Goal fatti</div><strong>${player.gol ?? 0}</strong></div>
-      <div class="stat-box"><div>&nbsp;</div><strong>&nbsp;</strong></div>
-    `;
-
-  const foto = (player.foto && String(player.foto).trim())
-    ? String(player.foto).trim()
-    : "https://via.placeholder.com/400x500/111111/ffffff?text=Colleferro";
-
-  const content = document.getElementById("playerModalContent");
-  if(!content) return;
-
-  content.innerHTML = `
-    <div class="modal-header">
-      <img src="${escapeHtml(foto)}" alt="${escapeHtml(player.nome)} ${escapeHtml(player.cognome)}">
-    </div>
-    <div class="modal-body">
-      <h2>EX • ${escapeHtml(player.nome)} ${escapeHtml(player.cognome)}</h2>
-      <div class="modal-meta">${escapeHtml(player.ruolo || "")}</div>
-      <div class="modal-meta">Data di nascita: ${escapeHtml(player.data_nascita ?? "-")}</div>
-
-      <div class="stats-grid">
-        <div class="stat-box"><div>Presenze</div><strong>${player.presenze ?? 0}</strong></div>
-        <div class="stat-box"><div>Minuti</div><strong>${player.minuti ?? 0}</strong></div>
-        ${extraStats}
-      </div>
-    </div>
-  `;
-
-  const modal = document.getElementById("playerModal");
-  if(modal) modal.style.display = "flex";
+function openPlayerModalExByIndex(idx){
+  const player = (appData?.calciatrici_cedute || [])[Number(idx)];
+  openPlayerModalByPlayer(player, true);
 }
 
-function closePlayerModal(e){
-  if(e && e.target && e.target.id === "playerModal"){
-    const modal = document.getElementById("playerModal");
-    if(modal) modal.style.display = "none";
-  }
-}
-
-function openNewsModal(id){
-  const list = (appData?.news || []).map((n, idx) => ({...n, _id: n.id ?? idx}));
-  const item = list.find(x => String(x._id) === String(id));
+function openNewsModalByIndex(idx){
+  const item = (appData?.news || [])[Number(idx)];
   if(!item) return;
 
   const title = item.titolo || "";
@@ -199,20 +173,7 @@ function openNewsModal(id){
   if(modal) modal.style.display = "flex";
 }
 
-function closeNewsModal(e){
-  if(e && e.target && e.target.id === "newsModal"){
-    const modal = document.getElementById("newsModal");
-    if(modal) modal.style.display = "none";
-  }
-}
-
-function renderNews(){
-  const news = appData.news || [];
-  const cal = appData.calendario || [];
-
-  const next = getNextMatch(cal);
-  const last = getLastPlayed(cal);
-  function formatCountdown(ms){
+function formatCountdown(ms){
   if(ms <= 0) return "Si gioca oggi!";
   const totalSec = Math.floor(ms / 1000);
   const days = Math.floor(totalSec / 86400);
@@ -237,13 +198,26 @@ function startCountdown(targetDate){
   };
 
   tick();
-  window.__cwCountdownTimer && clearInterval(window.__cwCountdownTimer);
+  if(window.__cwCountdownTimer) clearInterval(window.__cwCountdownTimer);
   window.__cwCountdownTimer = setInterval(tick, 60000);
 }
 
+function stopCountdown(){
+  if(window.__cwCountdownTimer){
+    clearInterval(window.__cwCountdownTimer);
+    window.__cwCountdownTimer = null;
+  }
+}
+
+function renderNews(){
+  const news = appData.news || [];
+  const cal = appData.calendario || [];
+
+  const next = getNextMatch(cal);
+  const last = getLastPlayed(cal);
 
   const interviste = news
-    .map((n, idx) => ({...n, _id: n.id ?? idx}))
+    .map((n, idx) => ({...n, _idx: idx}))
     .filter(n => (n.categoria || "").toLowerCase() === "intervista")
     .slice()
     .sort((a,b)=> (b.data||"").localeCompare(a.data||""));
@@ -262,7 +236,6 @@ function startCountdown(targetDate){
       ${next ? `
         <div style="font-weight:900; margin-top:6px">${escapeHtml(next.casa)} <span class="meta">vs</span> ${escapeHtml(next.trasferta)}</div>
         <div class="meta">${escapeHtml(fmtDate(next.data))} • ${escapeHtml(next.ora || "")} • ${escapeHtml(next.campo || "")}</div>
-
         <div style="margin-top:10px">
           <span class="badge">⏳ Mancano: <span id="countdownNext">--</span></span>
         </div>
@@ -271,7 +244,6 @@ function startCountdown(targetDate){
       `}
     </div>
   `;
-
 
   const blockLast = `
     <div class="card">
@@ -295,7 +267,7 @@ function startCountdown(targetDate){
           : (full.length > 120 ? full.slice(0, 120) + "…" : full);
 
         return `
-          <article class="news-item" onclick="openNewsModal('${escapeHtml(String(n._id))}')">
+          <article class="news-item" data-news-idx="${n._idx}">
             <div class="badge">${escapeHtml(fmtDate(n.data))}</div>
             <div style="font-weight:900; margin-top:6px">${escapeHtml(n.titolo || "")}</div>
             ${breve ? `<div class="meta" style="margin-top:6px">${escapeHtml(breve)}</div>` : ``}
@@ -306,11 +278,21 @@ function startCountdown(targetDate){
   `;
 
   views.news.innerHTML = header + blockNext + blockLast + blockInterviste;
-    if(next){
+
+  views.news.querySelectorAll("[data-news-idx]").forEach(el => {
+    el.addEventListener("click", () => {
+      const idx = el.getAttribute("data-news-idx");
+      openNewsModalByIndex(idx);
+    });
+  });
+
+  if(next){
     const dt = toDateTimeISO(next.data, next.ora);
     startCountdown(dt);
+  } else {
+    stopCountdown();
   }
-
+}
 
 function renderCalendario(){
   function formatMarcatori(text){
@@ -527,31 +509,43 @@ function renderRosa(){
     return (Number(a.numero) || 999) - (Number(b.numero) || 999);
   });
 
-  const cards = sorted.map(p => `
-    <div class="player-card" onclick="openPlayerModal(${Number(p.numero)})">
-      <div class="player-img">
-        <img src="${escapeHtml((p.foto && String(p.foto).trim()) ? String(p.foto).trim() : 'https://via.placeholder.com/300x400/111111/ffffff?text=Colleferro')}" alt="${escapeHtml(p.nome)} ${escapeHtml(p.cognome)}">
-      </div>
-      <div class="player-info">
-        <div class="player-number">#${escapeHtml(p.numero ?? "-")}</div>
-        <div class="player-name">${escapeHtml(p.nome || "")} ${escapeHtml(p.cognome || "")}</div>
-        <div class="player-role">${escapeHtml(p.ruolo || "")}</div>
-      </div>
-    </div>
-  `).join("");
+  const cards = sorted.map(p => {
+    const foto = (p.foto && String(p.foto).trim())
+      ? String(p.foto).trim()
+      : "https://via.placeholder.com/300x400/111111/ffffff?text=Colleferro";
 
-  const exCards = (ex || []).map(p => `
-    <div class="player-card player-ex-card" onclick="openPlayerModalEx('${escapeHtml(p.nome || "")}','${escapeHtml(p.cognome || "")}')">
-      <div class="player-img">
-        <img src="${escapeHtml((p.foto && String(p.foto).trim()) ? String(p.foto).trim() : 'https://via.placeholder.com/300x400/111111/ffffff?text=Colleferro')}" alt="${escapeHtml(p.nome)} ${escapeHtml(p.cognome)}">
+    return `
+      <div class="player-card" data-player-num="${escapeHtml(p.numero)}">
+        <div class="player-img">
+          <img src="${escapeHtml(foto)}" alt="${escapeHtml(p.nome)} ${escapeHtml(p.cognome)}">
+        </div>
+        <div class="player-info">
+          <div class="player-number">#${escapeHtml(p.numero ?? "-")}</div>
+          <div class="player-name">${escapeHtml(p.nome || "")} ${escapeHtml(p.cognome || "")}</div>
+          <div class="player-role">${escapeHtml(p.ruolo || "")}</div>
+        </div>
       </div>
-      <div class="player-info">
-        <div class="player-number">EX</div>
-        <div class="player-name">${escapeHtml(p.nome || "")} ${escapeHtml(p.cognome || "")}</div>
-        <div class="player-role">${escapeHtml(p.ruolo || "")}</div>
+    `;
+  }).join("");
+
+  const exCards = (ex || []).map((p, idx) => {
+    const foto = (p.foto && String(p.foto).trim())
+      ? String(p.foto).trim()
+      : "https://via.placeholder.com/300x400/111111/ffffff?text=Colleferro";
+
+    return `
+      <div class="player-card player-ex-card" data-ex-idx="${idx}">
+        <div class="player-img">
+          <img src="${escapeHtml(foto)}" alt="${escapeHtml(p.nome)} ${escapeHtml(p.cognome)}">
+        </div>
+        <div class="player-info">
+          <div class="player-number">EX</div>
+          <div class="player-name">${escapeHtml(p.nome || "")} ${escapeHtml(p.cognome || "")}</div>
+          <div class="player-role">${escapeHtml(p.ruolo || "")}</div>
+        </div>
       </div>
-    </div>
-  `).join("");
+    `;
+  }).join("");
 
   views.rosa.innerHTML = `
     <div class="card">
@@ -579,6 +573,20 @@ function renderRosa(){
       </div>
     </div>
   `;
+
+  views.rosa.querySelectorAll("[data-player-num]").forEach(el => {
+    el.addEventListener("click", () => {
+      const num = el.getAttribute("data-player-num");
+      openPlayerModal(num);
+    });
+  });
+
+  views.rosa.querySelectorAll("[data-ex-idx]").forEach(el => {
+    el.addEventListener("click", () => {
+      const idx = el.getAttribute("data-ex-idx");
+      openPlayerModalExByIndex(idx);
+    });
+  });
 
   const toggle = document.getElementById("toggleEx");
   if(toggle){
@@ -646,12 +654,4 @@ async function init(){
   }
 }
 
-window.openPlayerModal = openPlayerModal;
-window.openPlayerModalEx = openPlayerModalEx;
-window.closePlayerModal = closePlayerModal;
-
-window.openNewsModal = openNewsModal;
-window.closeNewsModal = closeNewsModal;
-
 init();
-
