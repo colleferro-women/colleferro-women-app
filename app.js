@@ -765,7 +765,7 @@ async function init(){
       installBtn.hidden = false;
     });
 
-    installBtn.addEventListener("click", async () => {
+    installBtn.addEventListener("click", m
       if(!deferredPrompt) return;
       deferredPrompt.prompt();
       await deferredPrompt.userChoice;
