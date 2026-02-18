@@ -8,8 +8,13 @@ const views = {
 
 let appData = null;
 
+// =====================
+// Utils
+// =====================
 function setActive(viewKey){
-  document.querySelectorAll(".tab").forEach(b => b.classList.toggle("is-active", b.dataset.view === viewKey));
+  document.querySelectorAll(".tab").forEach(b =>
+    b.classList.toggle("is-active", b.dataset.view === viewKey)
+  );
   document.querySelectorAll(".view").forEach(v => v.classList.remove("is-active"));
   const el = document.getElementById(`view-${viewKey}`);
   if(el) el.classList.add("is-active");
@@ -36,10 +41,19 @@ function escapeHtml(s){
     .replace(/'/g,"&#39;");
 }
 
+function isRiposoMatch(m){
+  return (m?.risultato === "Riposo") || (m?.marcatori === "Riposo");
+}
+
+function isPlayedMatch(m){
+  // "Giocata" = risultato valorizzato, non Riposo
+  return !!(m?.risultato && String(m.risultato).trim() && String(m.risultato).trim() !== "Riposo");
+}
+
 function getNextMatch(items){
   const now = new Date();
   const upcoming = (items || [])
-    .filter(m => m.data && m.marcatori !== "Riposo" && (!m.risultato || !String(m.risultato).trim()))
+    .filter(m => m.data && !isRiposoMatch(m) && (!m.risultato || !String(m.risultato).trim()))
     .map(m => ({...m, _dt: toDateTimeISO(m.data, m.ora)}))
     .filter(m => m._dt && m._dt >= now)
     .sort((a,b)=> a._dt - b._dt);
@@ -48,22 +62,23 @@ function getNextMatch(items){
 
 function getLastPlayed(items){
   const played = (items || [])
-    .filter(m => m.data && m.risultato && String(m.risultato).trim() && m.risultato !== "Riposo")
+    .filter(m => m.data && isPlayedMatch(m))
     .map(m => ({...m, _dt: toDateTimeISO(m.data, m.ora)}))
     .filter(m => m._dt)
     .sort((a,b)=> b._dt - a._dt);
   return played[0] || null;
 }
 
+// =====================
+// Modals (global)
+// =====================
 function ensureGlobalModals(){
   if(!document.getElementById("playerModal")){
     const modal = document.createElement("div");
     modal.id = "playerModal";
     modal.className = "player-modal";
+    modal.setAttribute("onclick", "closePlayerModal(event)");
     modal.innerHTML = `<div class="player-modal-content" id="playerModalContent"></div>`;
-    modal.addEventListener("click", (e) => {
-      if(e.target && e.target.id === "playerModal") closePlayerModal();
-    });
     document.body.appendChild(modal);
   }
 
@@ -71,25 +86,27 @@ function ensureGlobalModals(){
     const modal = document.createElement("div");
     modal.id = "newsModal";
     modal.className = "player-modal";
+    modal.setAttribute("onclick", "closeNewsModal(event)");
     modal.innerHTML = `<div class="player-modal-content" id="newsModalContent"></div>`;
-    modal.addEventListener("click", (e) => {
-      if(e.target && e.target.id === "newsModal") closeNewsModal();
-    });
+    document.body.appendChild(modal);
+  }
+
+  if(!document.getElementById("mvpModal")){
+    const modal = document.createElement("div");
+    modal.id = "mvpModal";
+    modal.className = "player-modal";
+    modal.setAttribute("onclick", "closeMvpModal(event)");
+    modal.innerHTML = `<div class="player-modal-content" id="mvpModalContent"></div>`;
     document.body.appendChild(modal);
   }
 }
 
-function closePlayerModal(){
-  const modal = document.getElementById("playerModal");
-  if(modal) modal.style.display = "none";
-}
-
-function closeNewsModal(){
-  const modal = document.getElementById("newsModal");
-  if(modal) modal.style.display = "none";
-}
-
-function openPlayerModalByPlayer(player, isEx){
+// =====================
+// Player modals
+// =====================
+function openPlayerModal(numero){
+  numero = Number(numero);
+  const player = (appData?.rosa || []).find(p => Number(p.numero) === numero);
   if(!player) return;
 
   const ruolo = (player.ruolo || "").toLowerCase();
@@ -112,16 +129,12 @@ function openPlayerModalByPlayer(player, isEx){
   const content = document.getElementById("playerModalContent");
   if(!content) return;
 
-  const title = isEx
-    ? `EX • ${escapeHtml(player.nome)} ${escapeHtml(player.cognome)}`
-    : `#${escapeHtml(player.numero)} ${escapeHtml(player.nome)} ${escapeHtml(player.cognome)}`;
-
   content.innerHTML = `
     <div class="modal-header">
       <img src="${escapeHtml(foto)}" alt="${escapeHtml(player.nome)} ${escapeHtml(player.cognome)}">
     </div>
     <div class="modal-body">
-      <h2>${title}</h2>
+      <h2>#${escapeHtml(player.numero)} ${escapeHtml(player.nome)} ${escapeHtml(player.cognome)}</h2>
       <div class="modal-meta">${escapeHtml(player.ruolo || "")}</div>
       <div class="modal-meta">Data di nascita: ${escapeHtml(player.data_nascita ?? "-")}</div>
 
@@ -137,19 +150,64 @@ function openPlayerModalByPlayer(player, isEx){
   if(modal) modal.style.display = "flex";
 }
 
-function openPlayerModal(numero){
-  const n = Number(numero);
-  const player = (appData?.rosa || []).find(p => Number(p.numero) === n);
-  openPlayerModalByPlayer(player, false);
+function openPlayerModalEx(nome, cognome){
+  const player = (appData?.calciatrici_cedute || []).find(p => (p.nome || "") === nome && (p.cognome || "") === cognome);
+  if(!player) return;
+
+  const ruolo = (player.ruolo || "").toLowerCase();
+  const isPortiere = ruolo === "portiere";
+
+  const extraStats = isPortiere
+    ? `
+      <div class="stat-box"><div>Reti inviolate</div><strong>${player.reti_inviolate ?? 0}</strong></div>
+      <div class="stat-box"><div>Reti subite</div><strong>${player.reti_subite ?? 0}</strong></div>
+    `
+    : `
+      <div class="stat-box"><div>Goal fatti</div><strong>${player.gol ?? 0}</strong></div>
+      <div class="stat-box"><div>&nbsp;</div><strong>&nbsp;</strong></div>
+    `;
+
+  const foto = (player.foto && String(player.foto).trim())
+    ? String(player.foto).trim()
+    : "https://via.placeholder.com/400x500/111111/ffffff?text=Colleferro";
+
+  const content = document.getElementById("playerModalContent");
+  if(!content) return;
+
+  content.innerHTML = `
+    <div class="modal-header">
+      <img src="${escapeHtml(foto)}" alt="${escapeHtml(player.nome)} ${escapeHtml(player.cognome)}">
+    </div>
+    <div class="modal-body">
+      <h2>EX • ${escapeHtml(player.nome)} ${escapeHtml(player.cognome)}</h2>
+      <div class="modal-meta">${escapeHtml(player.ruolo || "")}</div>
+      <div class="modal-meta">Data di nascita: ${escapeHtml(player.data_nascita ?? "-")}</div>
+
+      <div class="stats-grid">
+        <div class="stat-box"><div>Presenze</div><strong>${player.presenze ?? 0}</strong></div>
+        <div class="stat-box"><div>Minuti</div><strong>${player.minuti ?? 0}</strong></div>
+        ${extraStats}
+      </div>
+    </div>
+  `;
+
+  const modal = document.getElementById("playerModal");
+  if(modal) modal.style.display = "flex";
 }
 
-function openPlayerModalExByIndex(idx){
-  const player = (appData?.calciatrici_cedute || [])[Number(idx)];
-  openPlayerModalByPlayer(player, true);
+function closePlayerModal(e){
+  if(e && e.target && e.target.id === "playerModal"){
+    const modal = document.getElementById("playerModal");
+    if(modal) modal.style.display = "none";
+  }
 }
 
-function openNewsModalByIndex(idx){
-  const item = (appData?.news || [])[Number(idx)];
+// =====================
+// News modals
+// =====================
+function openNewsModal(id){
+  const list = (appData?.news || []).map((n, idx) => ({...n, _id: n.id ?? idx}));
+  const item = list.find(x => String(x._id) === String(id));
   if(!item) return;
 
   const title = item.titolo || "";
@@ -173,6 +231,63 @@ function openNewsModalByIndex(idx){
   if(modal) modal.style.display = "flex";
 }
 
+function closeNewsModal(e){
+  if(e && e.target && e.target.id === "newsModal"){
+    const modal = document.getElementById("newsModal");
+    if(modal) modal.style.display = "none";
+  }
+}
+
+// =====================
+// MVP modal
+// =====================
+function openMvpModal(idx){
+  const cal = appData?.calendario || [];
+  const m = cal[idx];
+  if(!m || !isPlayedMatch(m) || isRiposoMatch(m)) return;
+
+  const nomeMvp = (m.mvp && String(m.mvp).trim()) ? String(m.mvp).trim() : "";
+  const fotoMvp = (m.mvp_foto && String(m.mvp_foto).trim())
+    ? String(m.mvp_foto).trim()
+    : "https://via.placeholder.com/400x500/111111/ffffff?text=MVP";
+
+  const votaUrl = (m.mvp_vota_url && String(m.mvp_vota_url).trim()) ? String(m.mvp_vota_url).trim() : "";
+
+  const content = document.getElementById("mvpModalContent");
+  if(!content) return;
+
+  content.innerHTML = `
+    <div class="modal-header">
+      <img src="${escapeHtml(fotoMvp)}" alt="MVP">
+    </div>
+    <div class="modal-body">
+      <div class="badge">🏅 MVP</div>
+      <h2 style="margin-top:10px;">${nomeMvp ? escapeHtml(nomeMvp) : "Da assegnare"}</h2>
+      <div class="modal-meta">
+        ${escapeHtml(fmtDate(m.data))} • ${escapeHtml(m.casa || "")} vs ${escapeHtml(m.trasferta || "")}
+      </div>
+      <div class="modal-meta" style="margin-top:10px;">
+        ${nomeMvp ? "MVP inserito manualmente dallo staff." : "MVP non ancora inserito. Puoi aggiungerlo nel data.json quando vuoi."}
+      </div>
+
+      ${votaUrl ? `<a class="mvp-btn" href="${escapeHtml(votaUrl)}" target="_blank" rel="noopener">Vota MVP</a>` : ``}
+    </div>
+  `;
+
+  const modal = document.getElementById("mvpModal");
+  if(modal) modal.style.display = "flex";
+}
+
+function closeMvpModal(e){
+  if(e && e.target && e.target.id === "mvpModal"){
+    const modal = document.getElementById("mvpModal");
+    if(modal) modal.style.display = "none";
+  }
+}
+
+// =====================
+// Countdown (News)
+// =====================
 function formatCountdown(ms){
   if(ms <= 0) return "Si gioca oggi!";
   const totalSec = Math.floor(ms / 1000);
@@ -198,17 +313,13 @@ function startCountdown(targetDate){
   };
 
   tick();
-  if(window.__cwCountdownTimer) clearInterval(window.__cwCountdownTimer);
+  window.__cwCountdownTimer && clearInterval(window.__cwCountdownTimer);
   window.__cwCountdownTimer = setInterval(tick, 60000);
 }
 
-function stopCountdown(){
-  if(window.__cwCountdownTimer){
-    clearInterval(window.__cwCountdownTimer);
-    window.__cwCountdownTimer = null;
-  }
-}
-
+// =====================
+// Render: News
+// =====================
 function renderNews(){
   const news = appData.news || [];
   const cal = appData.calendario || [];
@@ -217,7 +328,7 @@ function renderNews(){
   const last = getLastPlayed(cal);
 
   const interviste = news
-    .map((n, idx) => ({...n, _idx: idx}))
+    .map((n, idx) => ({...n, _id: n.id ?? idx}))
     .filter(n => (n.categoria || "").toLowerCase() === "intervista")
     .slice()
     .sort((a,b)=> (b.data||"").localeCompare(a.data||""));
@@ -267,7 +378,7 @@ function renderNews(){
           : (full.length > 120 ? full.slice(0, 120) + "…" : full);
 
         return `
-          <article class="news-item" data-news-idx="${n._idx}">
+          <article class="news-item" onclick="openNewsModal('${escapeHtml(String(n._id))}')">
             <div class="badge">${escapeHtml(fmtDate(n.data))}</div>
             <div style="font-weight:900; margin-top:6px">${escapeHtml(n.titolo || "")}</div>
             ${breve ? `<div class="meta" style="margin-top:6px">${escapeHtml(breve)}</div>` : ``}
@@ -279,22 +390,17 @@ function renderNews(){
 
   views.news.innerHTML = header + blockNext + blockLast + blockInterviste;
 
-  views.news.querySelectorAll("[data-news-idx]").forEach(el => {
-    el.addEventListener("click", () => {
-      const idx = el.getAttribute("data-news-idx");
-      openNewsModalByIndex(idx);
-    });
-  });
-
   if(next){
     const dt = toDateTimeISO(next.data, next.ora);
     startCountdown(dt);
-  } else {
-    stopCountdown();
   }
 }
 
+// =====================
+// Render: Calendario (con MVP cliccabile solo se risultato)
+// =====================
 function renderCalendario(){
+
   function formatMarcatori(text){
     if(!text || text === "Riposo") return text;
 
@@ -327,27 +433,59 @@ function renderCalendario(){
   views.calendario.innerHTML = items
     .slice()
     .sort((a,b)=> (a.data||"").localeCompare(b.data||""))
-    .map(m => `
-      <div class="card">
-        <div class="meta">Giornata ${escapeHtml(m.giornata ?? "-")}</div>
-        <h3>${escapeHtml(m.casa || "")} <span class="meta">vs</span> ${escapeHtml(m.trasferta || "")}</h3>
-        <div class="meta">${escapeHtml(fmtDate(m.data))} • ${escapeHtml(m.ora || "")} • ${escapeHtml(m.campo || "")}</div>
+    .map((m, idx) => {
+      const riposo = isRiposoMatch(m);
+      const played = isPlayedMatch(m) && !riposo;
 
-        <div style="margin-top:10px">
-          <span class="badge">
-            ${m.risultato && String(m.risultato).trim() && m.risultato !== "Riposo" ? "Risultato: " + escapeHtml(m.risultato) : (m.risultato === "Riposo" ? "Riposo" : "Da giocare")}
-          </span>
-        </div>
+      const risultatoLabel = riposo
+        ? "Riposo"
+        : (m.risultato && String(m.risultato).trim() ? ("Risultato: " + escapeHtml(m.risultato)) : "Da giocare");
 
-        ${m.marcatori && String(m.marcatori).trim() && m.marcatori !== "Riposo" ? `
-          <div style="margin-top:8px; font-size:13px; color:#b9b9b9;">
-            <strong>Marcatori:</strong> ${escapeHtml(formatMarcatori(m.marcatori))}
+      const showMarcatori = (!riposo && m.marcatori && String(m.marcatori).trim());
+
+      // MVP: solo se partita giocata
+      let mvpHtml = "";
+      if(played){
+        const nomeMvp = (m.mvp && String(m.mvp).trim()) ? String(m.mvp).trim() : "";
+        mvpHtml = `
+          <div class="mvp-row" onclick="openMvpModal(${idx})">
+            <div class="mvp-left">
+              <span class="badge">🏅 MVP</span>
+              <div style="min-width:0;">
+                <div class="mvp-name">${nomeMvp ? escapeHtml(nomeMvp) : "Da assegnare"}</div>
+                <div class="mvp-hint">${nomeMvp ? "Tocca per vedere" : "Tocca per impostare / votare"}</div>
+              </div>
+            </div>
+            <div class="mvp-chip">Apri</div>
           </div>
-        ` : ""}
-      </div>
-    `).join("");
+        `;
+      }
+
+      return `
+        <div class="card">
+          <div class="meta">Giornata ${escapeHtml(m.giornata ?? "-")}</div>
+          <h3>${escapeHtml(m.casa || "")} <span class="meta">vs</span> ${escapeHtml(m.trasferta || "")}</h3>
+          <div class="meta">${escapeHtml(fmtDate(m.data))} • ${escapeHtml(m.ora || "")} • ${escapeHtml(m.campo || "")}</div>
+
+          <div style="margin-top:10px">
+            <span class="badge">${risultatoLabel}</span>
+          </div>
+
+          ${showMarcatori ? `
+            <div style="margin-top:8px; font-size:13px; color:#b9b9b9;">
+              <strong>Marcatori:</strong> ${escapeHtml(formatMarcatori(m.marcatori))}
+            </div>
+          ` : ""}
+
+          ${mvpHtml}
+        </div>
+      `;
+    }).join("");
 }
 
+// =====================
+// Render: Classifica + Marcatori automatici
+// =====================
 function renderClassifica(){
   const items = appData.classifica || [];
   const cal = appData.calendario || [];
@@ -486,6 +624,9 @@ function renderClassifica(){
   });
 }
 
+// =====================
+// Render: Rosa (ordinata per ruolo + toggle ex)
+// =====================
 function renderRosa(){
   const items = appData.rosa || [];
   const ex = appData.calciatrici_cedute || [];
@@ -509,43 +650,31 @@ function renderRosa(){
     return (Number(a.numero) || 999) - (Number(b.numero) || 999);
   });
 
-  const cards = sorted.map(p => {
-    const foto = (p.foto && String(p.foto).trim())
-      ? String(p.foto).trim()
-      : "https://via.placeholder.com/300x400/111111/ffffff?text=Colleferro";
-
-    return `
-      <div class="player-card" data-player-num="${escapeHtml(p.numero)}">
-        <div class="player-img">
-          <img src="${escapeHtml(foto)}" alt="${escapeHtml(p.nome)} ${escapeHtml(p.cognome)}">
-        </div>
-        <div class="player-info">
-          <div class="player-number">#${escapeHtml(p.numero ?? "-")}</div>
-          <div class="player-name">${escapeHtml(p.nome || "")} ${escapeHtml(p.cognome || "")}</div>
-          <div class="player-role">${escapeHtml(p.ruolo || "")}</div>
-        </div>
+  const cards = sorted.map(p => `
+    <div class="player-card" onclick="openPlayerModal(${Number(p.numero)})">
+      <div class="player-img">
+        <img src="${escapeHtml((p.foto && String(p.foto).trim()) ? String(p.foto).trim() : 'https://via.placeholder.com/300x400/111111/ffffff?text=Colleferro')}" alt="${escapeHtml(p.nome)} ${escapeHtml(p.cognome)}">
       </div>
-    `;
-  }).join("");
-
-  const exCards = (ex || []).map((p, idx) => {
-    const foto = (p.foto && String(p.foto).trim())
-      ? String(p.foto).trim()
-      : "https://via.placeholder.com/300x400/111111/ffffff?text=Colleferro";
-
-    return `
-      <div class="player-card player-ex-card" data-ex-idx="${idx}">
-        <div class="player-img">
-          <img src="${escapeHtml(foto)}" alt="${escapeHtml(p.nome)} ${escapeHtml(p.cognome)}">
-        </div>
-        <div class="player-info">
-          <div class="player-number">EX</div>
-          <div class="player-name">${escapeHtml(p.nome || "")} ${escapeHtml(p.cognome || "")}</div>
-          <div class="player-role">${escapeHtml(p.ruolo || "")}</div>
-        </div>
+      <div class="player-info">
+        <div class="player-number">#${escapeHtml(p.numero ?? "-")}</div>
+        <div class="player-name">${escapeHtml(p.nome || "")} ${escapeHtml(p.cognome || "")}</div>
+        <div class="player-role">${escapeHtml(p.ruolo || "")}</div>
       </div>
-    `;
-  }).join("");
+    </div>
+  `).join("");
+
+  const exCards = (ex || []).map(p => `
+    <div class="player-card player-ex-card" onclick="openPlayerModalEx('${escapeHtml(p.nome || "")}','${escapeHtml(p.cognome || "")}')">
+      <div class="player-img">
+        <img src="${escapeHtml((p.foto && String(p.foto).trim()) ? String(p.foto).trim() : 'https://via.placeholder.com/300x400/111111/ffffff?text=Colleferro')}" alt="${escapeHtml(p.nome)} ${escapeHtml(p.cognome)}">
+      </div>
+      <div class="player-info">
+        <div class="player-number">EX</div>
+        <div class="player-name">${escapeHtml(p.nome || "")} ${escapeHtml(p.cognome || "")}</div>
+        <div class="player-role">${escapeHtml(p.ruolo || "")}</div>
+      </div>
+    </div>
+  `).join("");
 
   views.rosa.innerHTML = `
     <div class="card">
@@ -574,20 +703,6 @@ function renderRosa(){
     </div>
   `;
 
-  views.rosa.querySelectorAll("[data-player-num]").forEach(el => {
-    el.addEventListener("click", () => {
-      const num = el.getAttribute("data-player-num");
-      openPlayerModal(num);
-    });
-  });
-
-  views.rosa.querySelectorAll("[data-ex-idx]").forEach(el => {
-    el.addEventListener("click", () => {
-      const idx = el.getAttribute("data-ex-idx");
-      openPlayerModalExByIndex(idx);
-    });
-  });
-
   const toggle = document.getElementById("toggleEx");
   if(toggle){
     toggle.addEventListener("change", () => {
@@ -597,6 +712,9 @@ function renderRosa(){
   }
 }
 
+// =====================
+// Render: Info
+// =====================
 function renderInfo(){
   const s = appData.social || {};
   const i = appData.info || {};
@@ -614,6 +732,9 @@ function renderInfo(){
   `;
 }
 
+// =====================
+// Init
+// =====================
 async function init(){
   document.querySelectorAll(".tab").forEach(btn=>{
     btn.addEventListener("click", ()=> setActive(btn.dataset.view));
@@ -653,5 +774,15 @@ async function init(){
     });
   }
 }
+
+window.openPlayerModal = openPlayerModal;
+window.openPlayerModalEx = openPlayerModalEx;
+window.closePlayerModal = closePlayerModal;
+
+window.openNewsModal = openNewsModal;
+window.closeNewsModal = closeNewsModal;
+
+window.openMvpModal = openMvpModal;
+window.closeMvpModal = closeMvpModal;
 
 init();
