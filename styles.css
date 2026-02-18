@@ -472,3 +472,21 @@ a{color:var(--text)}
 .mvp-btn:hover{
   background: rgba(212,0,26,.22);
 }
+.mvp-badge{
+  background: linear-gradient(135deg, rgba(255,215,0,.15), rgba(212,0,26,.15));
+  border: 1px solid rgba(255,215,0,.4);
+}
+
+.mvp-name{
+  background: linear-gradient(90deg, #ffd700, #fff6a3, #ffd700);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 900;
+  animation: mvpShine 3s linear infinite;
+}
+
+@keyframes mvpShine{
+  0%{ background-position: 0% center; }
+  100%{ background-position: 200% center; }
+}
