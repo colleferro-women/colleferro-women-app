@@ -70,6 +70,56 @@ function getLastPlayed(items){
 }
 
 // =====================
+// MVP Sound (solo on tap)
+// =====================
+function playMvpSound(){
+  try{
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if(!AudioCtx) return;
+
+    const ctx = new AudioCtx();
+    const now = ctx.currentTime;
+
+    const master = ctx.createGain();
+    master.gain.setValueAtTime(0.0001, now);
+    master.gain.exponentialRampToValueAtTime(0.18, now + 0.01);
+    master.gain.exponentialRampToValueAtTime(0.0001, now + 0.55);
+    master.connect(ctx.destination);
+
+    // piccolo "bling" gold: due oscillatori
+    const o1 = ctx.createOscillator();
+    const g1 = ctx.createGain();
+    o1.type = "sine";
+    o1.frequency.setValueAtTime(880, now);
+    o1.frequency.exponentialRampToValueAtTime(1320, now + 0.08);
+    g1.gain.setValueAtTime(0.0001, now);
+    g1.gain.exponentialRampToValueAtTime(0.35, now + 0.01);
+    g1.gain.exponentialRampToValueAtTime(0.0001, now + 0.22);
+    o1.connect(g1);
+    g1.connect(master);
+    o1.start(now);
+    o1.stop(now + 0.25);
+
+    const o2 = ctx.createOscillator();
+    const g2 = ctx.createGain();
+    o2.type = "triangle";
+    o2.frequency.setValueAtTime(660, now + 0.02);
+    o2.frequency.exponentialRampToValueAtTime(990, now + 0.12);
+    g2.gain.setValueAtTime(0.0001, now);
+    g2.gain.exponentialRampToValueAtTime(0.22, now + 0.02);
+    g2.gain.exponentialRampToValueAtTime(0.0001, now + 0.35);
+    o2.connect(g2);
+    g2.connect(master);
+    o2.start(now + 0.02);
+    o2.stop(now + 0.38);
+
+    setTimeout(() => {
+      try{ ctx.close(); } catch(e){}
+    }, 700);
+  }catch(e){}
+}
+
+// =====================
 // Modals (global)
 // =====================
 function ensureGlobalModals(){
@@ -246,6 +296,9 @@ function openMvpModal(idx){
   const m = cal[idx];
   if(!m || !isPlayedMatch(m) || isRiposoMatch(m)) return;
 
+  // suono SOLO quando apri MVP
+  playMvpSound();
+
   const nomeMvp = (m.mvp && String(m.mvp).trim()) ? String(m.mvp).trim() : "";
   const fotoMvp = (m.mvp_foto && String(m.mvp_foto).trim())
     ? String(m.mvp_foto).trim()
@@ -261,7 +314,7 @@ function openMvpModal(idx){
       <img src="${escapeHtml(fotoMvp)}" alt="MVP">
     </div>
     <div class="modal-body">
-      <div class="badge">🏅 MVP</div>
+      <div class="badge mvp-badge">🏅 MVP</div>
       <h2 style="margin-top:10px;">${nomeMvp ? escapeHtml(nomeMvp) : "Da assegnare"}</h2>
       <div class="modal-meta">
         ${escapeHtml(fmtDate(m.data))} • ${escapeHtml(m.casa || "")} vs ${escapeHtml(m.trasferta || "")}
@@ -342,12 +395,12 @@ function renderNews(){
   `;
 
   const blockNext = `
-    <div class="card">
+    <div class="card match-hero">
       <h3>Prossima partita</h3>
       ${next ? `
-        <div style="font-weight:900; margin-top:6px">${escapeHtml(next.casa)} <span class="meta">vs</span> ${escapeHtml(next.trasferta)}</div>
+        <div style="font-weight:900; margin-top:8px">${escapeHtml(next.casa)} <span class="meta">vs</span> ${escapeHtml(next.trasferta)}</div>
         <div class="meta">${escapeHtml(fmtDate(next.data))} • ${escapeHtml(next.ora || "")} • ${escapeHtml(next.campo || "")}</div>
-        <div style="margin-top:10px">
+        <div style="margin-top:12px">
           <span class="badge">⏳ Mancano: <span id="countdownNext">--</span></span>
         </div>
       ` : `
@@ -443,14 +496,13 @@ function renderCalendario(){
 
       const showMarcatori = (!riposo && m.marcatori && String(m.marcatori).trim());
 
-      // MVP: solo se partita giocata
       let mvpHtml = "";
       if(played){
         const nomeMvp = (m.mvp && String(m.mvp).trim()) ? String(m.mvp).trim() : "";
         mvpHtml = `
           <div class="mvp-row" onclick="openMvpModal(${idx})">
             <div class="mvp-left">
-              <span class="badge">🏅 MVP</span>
+              <span class="badge mvp-badge">🏅 MVP</span>
               <div style="min-width:0;">
                 <div class="mvp-name">${nomeMvp ? escapeHtml(nomeMvp) : "Da assegnare"}</div>
                 <div class="mvp-hint">${nomeMvp ? "Tocca per vedere" : "Tocca per impostare / votare"}</div>
@@ -765,7 +817,7 @@ async function init(){
       installBtn.hidden = false;
     });
 
-    installBtn.addEventListener("click", m
+    installBtn.addEventListener("click", async () => {
       if(!deferredPrompt) return;
       deferredPrompt.prompt();
       await deferredPrompt.userChoice;
