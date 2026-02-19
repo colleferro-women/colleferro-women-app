@@ -9,22 +9,22 @@
     "campo_nome": "Stadio Comunale Andrea Caslini",
     "campo_indirizzo": "Via Francesco Berni, 14 - Colleferro (Roma)",
     "latest_version": "2026.02.19.1",
-"update_message": "Aggiornamento: MVP cliccabile + miglioramenti grafica."
+    "update_message": "Aggiornamento: MVP cliccabile + miglioramenti grafica."
   },
   "news": [
     {
       "titolo": "Benvenuti nella App ufficiale del Colleferro Women!",
       "data": "2026-02-14",
       "testo": "Qui troverai news, calendario, classifica e rosa del Colleferro Women."
-    }
+    },
     {
-  "categoria": "intervista",
-  "titolo": "Intervista • Scagnetti M.: “Questa squadra rappresenta casa. Al gruppo voglio dire grazie”,
-  "data": "2026-02-12",
-  "testo_breve": "Marta ci racconta la prima parte di stagione, lo spirito del gruppo e cosa serve per continuare così.",
-  "testo": "D: Ad oggi cosa rappresenta per te questa squadra? Come giudichi il tuo rendimento individuale?\nR: Questa squadra per me rappresenta una vera e propria casa, c’è fiducia reciproca, sacrificio e voglia di crescere insieme. A livello individuale credo di essere cresciuta: mi sento più serena, più responsabile e più sicura delle mie qualità.\n\nD: Ti va di tracciare un bilancio? Cosa c’è da rivedere, secondo te, e su cosa si potrà far leva positivamente anche per il futuro vicino e lontano?\nR: Il bilancio è sicuramente positivo. Da neopromossa non era affatto scontato riuscire a dire la nostra, invece stiamo dimostrando di poter competere con squadre più esperte. Abbiamo tanta voglia di crescere e di migliorarci. Sicuramente dobbiamo lavorare su alcuni dettagli, ma stiamo dimostrando di avere idee e qualità nel campo; dobbiamo continuare a lavorare per sfruttare al meglio le occasioni che creiamo, perché è lì che possiamo fare un ulteriore salto di qualità.\n\nD: Cosa ti piacerebbe ancora conquistare con questa maglia addosso? \nR: Con questa maglia mi piacerebbe continuare a crescere, raggiungere nuovi traguardi e togliere ancora tante soddisfazioni, sia a livello personale che di squadra. Al gruppo, che ha grandi qualità e cuore, voglio dire grazie, perché mi fa sentire a casa ogni giorno; restando unite, dando tutto ogni giorno e aiutandoci a vicenda, possiamo andare lontano!",
-  "link": "https://www.calciofemminileitaliano.it/calcio-femminile/interviste/marta-scagnetti-colleferro-questa-squadra-rappresenta-casa-al-gruppo-voglio-dire-grazie/"
-}
+      "categoria": "intervista",
+      "titolo": "Intervista • Scagnetti M.: “Questa squadra rappresenta casa. Al gruppo voglio dire grazie”",
+      "data": "2026-02-12",
+      "testo_breve": "Marta ci racconta la prima parte di stagione, lo spirito del gruppo e cosa serve per continuare così.",
+      "testo": "D: Ad oggi cosa rappresenta per te questa squadra? Come giudichi il tuo rendimento individuale?\nR: Questa squadra per me rappresenta una vera e propria casa, c’è fiducia reciproca, sacrificio e voglia di crescere insieme. A livello individuale credo di essere cresciuta: mi sento più serena, più responsabile e più sicura delle mie qualità.\n\nD: Ti va di tracciare un bilancio? Cosa c’è da rivedere, secondo te, e su cosa si potrà far leva positivamente anche per il futuro vicino e lontano?\nR: Il bilancio è sicuramente positivo. Da neopromossa non era affatto scontato riuscire a dire la nostra, invece stiamo dimostrando di poter competere con squadre più esperte. Abbiamo tanta voglia di crescere e di migliorarci. Sicuramente dobbiamo lavorare su alcuni dettagli, ma stiamo dimostrando di avere idee e qualità nel campo; dobbiamo continuare a lavorare per sfruttare al meglio le occasioni che creiamo, perché è lì che possiamo fare un ulteriore salto di qualità.\n\nD: Cosa ti piacerebbe ancora conquistare con questa maglia addosso?\nR: Con questa maglia mi piacerebbe continuare a crescere, raggiungere nuovi traguardi e togliere ancora tante soddisfazioni, sia a livello personale che di squadra. Al gruppo, che ha grandi qualità e cuore, voglio dire grazie, perché mi fa sentire a casa ogni giorno; restando unite, dando tutto ogni giorno e aiutandoci a vicenda, possiamo andare lontano!",
+      "link": "https://www.calciofemminileitaliano.it/calcio-femminile/interviste/marta-scagnetti-colleferro-questa-squadra-rappresenta-casa-al-gruppo-voglio-dire-grazie/"
+    }
   ],
   "calendario": [
     {
