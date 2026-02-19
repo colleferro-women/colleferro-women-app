@@ -7,7 +7,9 @@
     "contatto_email": "ssdcolleferrocalcio@libero.it",
     "telefono": "+39 339 7209183",
     "campo_nome": "Stadio Comunale Andrea Caslini",
-    "campo_indirizzo": "Via Francesco Berni, 14 - Colleferro (Roma)"
+    "campo_indirizzo": "Via Francesco Berni, 14 - Colleferro (Roma)",
+    "latest_version": "2026.02.19.1",
+"update_message": "Aggiornamento: MVP cliccabile + miglioramenti grafica."
   },
   "news": [
     {
@@ -152,8 +154,8 @@
       "trasferta": "Colleferro Women",
       "campo": "Stadio Giannattasio",
       "risultato": "2-0",
-      "marcatori": "Palmigiani G.",
-      "mvp": "",
+      "marcatori": "",
+      "mvp": "Palmigiani G.",
       "mvp_foto": "",
       "mvp_vota_url": ""
     },
