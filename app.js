@@ -8,9 +8,8 @@ const views = {
 
 let appData = null;
 
-// =====================
-// Utils
-// =====================
+const APP_BUILD = "2026.02.19.1";
+
 function setActive(viewKey){
   document.querySelectorAll(".tab").forEach(b =>
     b.classList.toggle("is-active", b.dataset.view === viewKey)
@@ -46,7 +45,6 @@ function isRiposoMatch(m){
 }
 
 function isPlayedMatch(m){
-  // "Giocata" = risultato valorizzato, non Riposo
   return !!(m?.risultato && String(m.risultato).trim() && String(m.risultato).trim() !== "Riposo");
 }
 
@@ -69,59 +67,6 @@ function getLastPlayed(items){
   return played[0] || null;
 }
 
-// =====================
-// MVP Sound (solo on tap)
-// =====================
-function playMvpSound(){
-  try{
-    const AudioCtx = window.AudioContext || window.webkitAudioContext;
-    if(!AudioCtx) return;
-
-    const ctx = new AudioCtx();
-    const now = ctx.currentTime;
-
-    const master = ctx.createGain();
-    master.gain.setValueAtTime(0.0001, now);
-    master.gain.exponentialRampToValueAtTime(0.18, now + 0.01);
-    master.gain.exponentialRampToValueAtTime(0.0001, now + 0.55);
-    master.connect(ctx.destination);
-
-    // piccolo "bling" gold: due oscillatori
-    const o1 = ctx.createOscillator();
-    const g1 = ctx.createGain();
-    o1.type = "sine";
-    o1.frequency.setValueAtTime(880, now);
-    o1.frequency.exponentialRampToValueAtTime(1320, now + 0.08);
-    g1.gain.setValueAtTime(0.0001, now);
-    g1.gain.exponentialRampToValueAtTime(0.35, now + 0.01);
-    g1.gain.exponentialRampToValueAtTime(0.0001, now + 0.22);
-    o1.connect(g1);
-    g1.connect(master);
-    o1.start(now);
-    o1.stop(now + 0.25);
-
-    const o2 = ctx.createOscillator();
-    const g2 = ctx.createGain();
-    o2.type = "triangle";
-    o2.frequency.setValueAtTime(660, now + 0.02);
-    o2.frequency.exponentialRampToValueAtTime(990, now + 0.12);
-    g2.gain.setValueAtTime(0.0001, now);
-    g2.gain.exponentialRampToValueAtTime(0.22, now + 0.02);
-    g2.gain.exponentialRampToValueAtTime(0.0001, now + 0.35);
-    o2.connect(g2);
-    g2.connect(master);
-    o2.start(now + 0.02);
-    o2.stop(now + 0.38);
-
-    setTimeout(() => {
-      try{ ctx.close(); } catch(e){}
-    }, 700);
-  }catch(e){}
-}
-
-// =====================
-// Modals (global)
-// =====================
 function ensureGlobalModals(){
   if(!document.getElementById("playerModal")){
     const modal = document.createElement("div");
@@ -151,9 +96,79 @@ function ensureGlobalModals(){
   }
 }
 
-// =====================
-// Player modals
-// =====================
+function ensureUpdateBanner(){
+  if(document.getElementById("updateBanner")) return;
+
+  const el = document.createElement("div");
+  el.id = "updateBanner";
+  el.className = "update-banner";
+  el.setAttribute("hidden", "hidden");
+  el.innerHTML = `
+    <div class="update-inner">
+      <div class="update-left">
+        <div class="update-title">Nuova versione disponibile</div>
+        <div class="update-sub" id="updateBannerSub">Aggiorna per vedere le ultime novità.</div>
+      </div>
+      <div class="update-actions">
+        <button class="update-btn" id="updateBannerBtn">Aggiorna</button>
+        <button class="update-x" id="updateBannerClose" aria-label="Chiudi">✕</button>
+      </div>
+    </div>
+  `;
+
+  const header = document.querySelector("header.topbar");
+  if(header && header.parentNode){
+    header.parentNode.insertBefore(el, header.nextSibling);
+  }else{
+    document.body.insertBefore(el, document.body.firstChild);
+  }
+}
+
+async function hardRefresh(){
+  try{
+    if("serviceWorker" in navigator){
+      const regs = await navigator.serviceWorker.getRegistrations();
+      await Promise.all(regs.map(r => r.unregister()));
+    }
+  }catch(e){}
+
+  try{
+    if("caches" in window){
+      const keys = await caches.keys();
+      await Promise.all(keys.map(k => caches.delete(k)));
+    }
+  }catch(e){}
+
+  const url = new URL(location.href);
+  url.searchParams.set("v", String(Date.now()));
+  location.replace(url.toString());
+}
+
+function showUpdateBanner(message, latestVersion){
+  ensureUpdateBanner();
+  const banner = document.getElementById("updateBanner");
+  const sub = document.getElementById("updateBannerSub");
+  const btn = document.getElementById("updateBannerBtn");
+  const close = document.getElementById("updateBannerClose");
+
+  if(!banner || !sub || !btn || !close) return;
+
+  const dismissedKey = "cw_update_dismissed";
+  const dismissed = localStorage.getItem(dismissedKey);
+  if(dismissed && latestVersion && dismissed === String(latestVersion)) return;
+
+  sub.innerHTML = message ? escapeHtml(message) : "Aggiorna per vedere le ultime novità.";
+  banner.hidden = false;
+  banner.classList.add("is-show");
+
+  btn.onclick = () => hardRefresh();
+  close.onclick = () => {
+    if(latestVersion) localStorage.setItem(dismissedKey, String(latestVersion));
+    banner.classList.remove("is-show");
+    banner.hidden = true;
+  };
+}
+
 function openPlayerModal(numero){
   numero = Number(numero);
   const player = (appData?.rosa || []).find(p => Number(p.numero) === numero);
@@ -252,9 +267,6 @@ function closePlayerModal(e){
   }
 }
 
-// =====================
-// News modals
-// =====================
 function openNewsModal(id){
   const list = (appData?.news || []).map((n, idx) => ({...n, _id: n.id ?? idx}));
   const item = list.find(x => String(x._id) === String(id));
@@ -288,16 +300,10 @@ function closeNewsModal(e){
   }
 }
 
-// =====================
-// MVP modal
-// =====================
 function openMvpModal(idx){
   const cal = appData?.calendario || [];
   const m = cal[idx];
   if(!m || !isPlayedMatch(m) || isRiposoMatch(m)) return;
-
-  // suono SOLO quando apri MVP
-  playMvpSound();
 
   const nomeMvp = (m.mvp && String(m.mvp).trim()) ? String(m.mvp).trim() : "";
   const fotoMvp = (m.mvp_foto && String(m.mvp_foto).trim())
@@ -338,20 +344,15 @@ function closeMvpModal(e){
   }
 }
 
-// =====================
-// Countdown (News)
-// =====================
 function formatCountdown(ms){
   if(ms <= 0) return "Si gioca oggi!";
   const totalSec = Math.floor(ms / 1000);
   const days = Math.floor(totalSec / 86400);
   const hours = Math.floor((totalSec % 86400) / 3600);
   const mins = Math.floor((totalSec % 3600) / 60);
-
   const dd = String(days);
   const hh = String(hours).padStart(2, "0");
   const mm = String(mins).padStart(2, "0");
-
   return `${dd}g ${hh}h ${mm}m`;
 }
 
@@ -370,9 +371,6 @@ function startCountdown(targetDate){
   window.__cwCountdownTimer = setInterval(tick, 60000);
 }
 
-// =====================
-// Render: News
-// =====================
 function renderNews(){
   const news = appData.news || [];
   const cal = appData.calendario || [];
@@ -395,12 +393,12 @@ function renderNews(){
   `;
 
   const blockNext = `
-    <div class="card match-hero">
+    <div class="card">
       <h3>Prossima partita</h3>
       ${next ? `
-        <div style="font-weight:900; margin-top:8px">${escapeHtml(next.casa)} <span class="meta">vs</span> ${escapeHtml(next.trasferta)}</div>
+        <div style="font-weight:900; margin-top:6px">${escapeHtml(next.casa)} <span class="meta">vs</span> ${escapeHtml(next.trasferta)}</div>
         <div class="meta">${escapeHtml(fmtDate(next.data))} • ${escapeHtml(next.ora || "")} • ${escapeHtml(next.campo || "")}</div>
-        <div style="margin-top:12px">
+        <div style="margin-top:10px">
           <span class="badge">⏳ Mancano: <span id="countdownNext">--</span></span>
         </div>
       ` : `
@@ -449,11 +447,7 @@ function renderNews(){
   }
 }
 
-// =====================
-// Render: Calendario (con MVP cliccabile solo se risultato)
-// =====================
 function renderCalendario(){
-
   function formatMarcatori(text){
     if(!text || text === "Riposo") return text;
 
@@ -535,9 +529,6 @@ function renderCalendario(){
     }).join("");
 }
 
-// =====================
-// Render: Classifica + Marcatori automatici
-// =====================
 function renderClassifica(){
   const items = appData.classifica || [];
   const cal = appData.calendario || [];
@@ -676,9 +667,6 @@ function renderClassifica(){
   });
 }
 
-// =====================
-// Render: Rosa (ordinata per ruolo + toggle ex)
-// =====================
 function renderRosa(){
   const items = appData.rosa || [];
   const ex = appData.calciatrici_cedute || [];
@@ -764,9 +752,6 @@ function renderRosa(){
   }
 }
 
-// =====================
-// Render: Info
-// =====================
 function renderInfo(){
   const s = appData.social || {};
   const i = appData.info || {};
@@ -784,18 +769,22 @@ function renderInfo(){
   `;
 }
 
-// =====================
-// Init
-// =====================
 async function init(){
   document.querySelectorAll(".tab").forEach(btn=>{
     btn.addEventListener("click", ()=> setActive(btn.dataset.view));
   });
 
-  const res = await fetch("data.json", { cache: "no-store" });
+  ensureGlobalModals();
+  ensureUpdateBanner();
+
+  const res = await fetch(`data.json?v=${Date.now()}`, { cache: "no-store" });
   appData = await res.json();
 
-  ensureGlobalModals();
+  const latest = String(appData?.latest_version || "").trim();
+  const msg = String(appData?.update_message || "").trim();
+  if(latest && latest !== APP_BUILD){
+    showUpdateBanner(msg || "È disponibile un aggiornamento dell’app. Premi “Aggiorna”.", latest);
+  }
 
   renderNews();
   renderCalendario();
